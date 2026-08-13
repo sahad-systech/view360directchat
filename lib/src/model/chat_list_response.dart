@@ -11,8 +11,8 @@ class ChatListResponse {
 
   factory ChatListResponse.fromJson(Map<String, dynamic> json) {
     return ChatListResponse(
-      success: json['status'] == true || json['status'] == 'true',
-      messages: (json['data'] as List<dynamic>)
+      success: true,
+      messages: (json['messagesInChat'] as List<dynamic>)
           .map((e) => ChatMessage.fromJson(e))
           .toList(),
     );
@@ -45,10 +45,10 @@ class ChatMessage {
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(
       content: json['content'] ?? '',
-      senderType: json['senderType'],
+      senderType: json['senderType'] ?? '',
       files: (json['file_path'] as List<dynamic>).cast<String>(),
-      createdAt: json['createdAt'],
-      id: json['id'],
+      createdAt: json['createdAt'] ?? '',
+      id: json['id'] ?? 0,
     );
   }
 }

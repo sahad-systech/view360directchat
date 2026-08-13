@@ -159,9 +159,10 @@ class ConnectedUI extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(5, (index) {
         final height =
-            20.0 + (service.audioLevel * 30 * (index % 2 == 0 ? 0.5 : 1.0));
+            20.0 + (service.audioLevel * 15 * (index % 2 == 0 ? 0.5 : 1.0));
         return AnimatedContainer(
-          duration: const Duration(milliseconds: 100),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           width: 8,
           height: height,

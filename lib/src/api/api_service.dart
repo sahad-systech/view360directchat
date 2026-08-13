@@ -20,8 +20,11 @@ class ChatService {
 
   ChatService({required this.baseUrl, required this.appId});
 
-  socketEmitIsWorking(String customerId) {
-    SocketManager().socket.emit("joinRoom", "customer-$customerId");
+  Future<void> socketEmitIsWorking(String customerId) async {
+    Future.delayed(const Duration(seconds: 1), () {
+      SocketManager().socket.emit("customerSetup", {"id": customerId});
+      SocketManager().socket.emit("join chat", 0);
+    });
   }
 
   Future<ChateRegisterResponse> createChatSession({
@@ -33,55 +36,53 @@ class ChatService {
     bool? fetchFCMToken = false,
   }) async {
     final String updatedBaseUrl = baseUrl.replaceAll('https://', '');
-    final String chatId = generateUniqueId();
-    final String socketId = SocketManager().socket.id!;
     try {
-      final uri =
-          Uri.https(updatedBaseUrl, "/widgetapi/messages/customerMessage");
+      final uri = Uri.https(updatedBaseUrl, "/convapi/chat-integration/chat");
 
-      final request = http.MultipartRequest('POST', uri)
+      final request = http.Request('POST', uri)
         ..headers['app-id'] = appId
-        ..fields.addAll({
-          'content': chatContent,
-          'ChatId': chatId,
-          'messageId': '${DateTime.now().millisecondsSinceEpoch}',
-          'senderType': 'customer',
-          'customerId': '',
-          'socketId': socketId,
-          'status': 'pending',
-          'lang': languageInstance ?? 'en',
-          'createdAt': DateTime.now().toString(),
-          'customerInfo[name]': customerName,
-          'customerInfo[email]': customerEmail ?? '',
-          'customerInfo[mobile]': customerPhone ?? '',
-        });
+        ..headers['Origin'] = 'https://view360.cx'
+        ..headers['Referer'] = 'https://view360.cx/'
+        ..headers['Content-Type'] = 'application/json';
+
+      final body = {
+        'ChatId': customerEmail ?? customerPhone!,
+        'appId': appId,
+        'channel': 'web',
+        'clientId': '',
+        if (customerEmail != null && customerEmail.isNotEmpty)
+          'email': customerEmail,
+        if (customerPhone != null && customerPhone.isNotEmpty)
+          'mobile': customerPhone,
+        'name': customerName,
+        'messages': [
+          {
+            'text': {'content': chatContent, 'content_id': 'customer'},
+          },
+        ],
+      };
+
+      request.body = jsonEncode(body);
       final response = await request.send();
       final responseString = await response.stream.bytesToString();
-
       if (response.statusCode == 200 || response.statusCode == 304) {
         final json = jsonDecode(responseString);
-        final topLevelStatus =
-            json['status'] == true || json['status'] == 'true';
-        final contentStatus = json['content']?['status'];
         final bool isQuieue = json['is_queue'] ?? false;
-        final contentId = json['chatId']?.toString();
-        final customerId = json['customerId']?.toString();
-        socketEmitIsWorking(customerId ?? '');
+        final customerId = json['customer']['id']?.toString();
+        await socketEmitIsWorking(customerId ?? '');
         await View360ChatPrefs.saveString(
-            isInQueueValue: isQuieue,
-            customerCondentIdValue: contentId ?? '',
-            chatIdKeyValue: chatId,
-            customerIdKeyValue: !topLevelStatus ||
-                    contentStatus == false ||
-                    contentStatus == 'false'
-                ? json['customerId']?.toString() ?? ''
-                : customerId ?? '',
-            customerNameKeyValue: customerName,
-            customerEmailKeyValue: customerEmail ?? '',
-            customerPhoneKeyValue: customerPhone ?? '');
+          isInQueueValue: isQuieue,
+          customerIdKeyValue: customerId ?? '',
+          customerNameKeyValue: customerName,
+          customerEmailKeyValue: customerEmail ?? '',
+          customerPhoneKeyValue: customerPhone ?? '',
+        );
         if (fetchFCMToken ?? false) {
           getFCMToken(
-              userId: customerId.toString(), baseUrl: baseUrl, appId: appId);
+            userId: customerId.toString(),
+            baseUrl: baseUrl,
+            appId: appId,
+          );
         }
 
         return ChateRegisterResponse.fromJson(json);
@@ -108,7 +109,6 @@ class ChatService {
     required String chatContent,
   }) async {
     final String updatedBaseUrl = baseUrl.replaceAll('https://', '');
-    final String socketId = SocketManager().socket.id!;
     const allowedExtensions = [
       '.jpg',
       '.jpeg',
@@ -121,25 +121,19 @@ class ChatService {
     ];
 
     try {
-      final uri =
-          Uri.https(updatedBaseUrl, "/widgetapi/messages/customerMessage");
+      final uri = Uri.https(updatedBaseUrl, "/convapi/customer/message");
       final View360ChatPrefsModel localstorage =
           await View360ChatPrefs.getString();
-
       final request = http.MultipartRequest('POST', uri)
-        ..headers['app-id'] = appId;
+        ..headers['app-id'] = appId
+        ..headers['Origin'] = 'https://view360.cx'
+        ..headers['Referer'] = 'https://view360.cx/';
       request.fields.addAll({
-        'ChatId': localstorage.chatId,
+        'chat_id': localstorage.chatId,
         'content': chatContent,
-        'createdAt': DateTime.now().toUtc().toIso8601String(),
-        'customerInfo[name]': localstorage.customerName,
-        'customerInfo[mobile]': localstorage.customerPhone,
-        'customerInfo[email]': localstorage.customerEmail,
-        'messageId': '${DateTime.now().millisecondsSinceEpoch}',
-        'senderType': 'customer',
-        'socketId': socketId,
-        'status': 'pending',
+        'customerId': localstorage.customerId,
       });
+
       if (filePath != null && filePath.isNotEmpty) {
         for (var file in filePath) {
           String ext = '.${file.split('.').last.toLowerCase()}';
@@ -150,18 +144,18 @@ class ChatService {
           final mimeType = getMimeType(file);
           final parts = mimeType.split('/');
           final contentType = MediaType(parts[0], parts[1]);
-          request.files.add(await http.MultipartFile.fromPath(
-            'files',
-            file,
-            filename: fileName,
-            contentType: contentType,
-          ));
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'files',
+              file,
+              filename: fileName,
+              contentType: contentType,
+            ),
+          );
         }
       }
-
       final response = await request.send();
       final responseString = await response.stream.bytesToString();
-
       if (response.statusCode == 200 || response.statusCode == 304) {
         final json = jsonDecode(responseString);
         return ChatSentResponse.fromJson(json);
@@ -186,30 +180,27 @@ class ChatService {
   Future<ChatListResponse> fetchMessages() async {
     final View360ChatPrefsModel localstorage =
         await View360ChatPrefs.getString();
-    final String contentId = localstorage.customerContentId;
-    final bool isInQueue = localstorage.isInQueue;
-    Uri url;
-    if (isInQueue) {
-      final String customerId = localstorage.customerId;
-      final String chatId = localstorage.chatId;
-      url = Uri.parse(
-          '$baseUrl/widgetapi/messages/chatQueueMessages?customerId=$customerId&channelChatId=$chatId');
-    } else {
-      url = Uri.parse('$baseUrl/widgetapi/messages/allMessages/$contentId');
-    }
-    final headers = {'app-id': appId};
+    final String chatId = localstorage.chatId;
+    final Uri url = Uri.parse(
+      '$baseUrl/convapi/customer/message/$chatId?web=true',
+    );
+    final headers = {
+      'app-id': appId,
+      'Origin': 'https://view360.cx',
+      'Referer': 'https://view360.cx/',
+    };
 
     try {
       final response = await http
           .get(url, headers: headers)
           .timeout(const Duration(seconds: 20)); // Optional: set timeout
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return ChatListResponse.fromJson(data);
       } else {
         return ChatListResponse.error(
-            'HTTP error - status code ${response.statusCode}');
+          'HTTP error - status code ${response.statusCode}',
+        );
       }
     } on SocketException {
       return ChatListResponse.error('No Internet connection');
@@ -224,17 +215,23 @@ class ChatService {
     }
   }
 
-  Future<void> notificationToken(
-      {required String token, required String userId}) async {
+  Future<void> notificationToken({
+    required String token,
+    required String userId,
+  }) async {
     try {
-      var headers = {'app-id': appId, 'Content-Type': 'application/json'};
+      var headers = {
+        'app-id': appId,
+        'Origin': 'https://view360.cx',
+        'Referer': 'https://view360.cx/',
+      };
       var request = http.Request(
-          'POST', Uri.parse('$baseUrl/widgetapi/messages/updateFCM'));
+        'POST',
+        Uri.parse('$baseUrl/widgetapi/messages/updateFCM'),
+      );
       request.body = jsonEncode({"customerId": userId, "fcmToken": token});
       request.headers.addAll(headers);
-
       http.StreamedResponse response = await request.send();
-
       if (response.statusCode == 200) {
         debugPrint("FCM token updated successfully");
       } else {
@@ -247,26 +244,35 @@ class ChatService {
 
   Future<void> closeChat() async {
     final localstorage = await View360ChatPrefs.getString();
-    final String customerId = localstorage.customerId;
     final String chatId = localstorage.chatId;
     try {
-      var headers = {'app-id': appId};
+      var headers = {
+        'app-id': appId,
+        'origin': 'https://view360.cx',
+        'referer': 'https://view360.cx/',
+        'Content-Type': 'application/json',
+      };
       var request = http.Request(
-          'POST', Uri.parse('$baseUrl/widgetapi/messages/closeChat'));
-      request.body = jsonEncode({
-        "customerId": customerId,
-        "chatId": chatId,
-      });
+        'POST',
+        Uri.parse('$baseUrl/convapi/customer/chat/closeChat'),
+      );
+      final dynamic parsedChatId = int.tryParse(chatId) ?? chatId;
+      request.body = jsonEncode({"chatId": parsedChatId});
       request.headers.addAll(headers);
-
       http.StreamedResponse response = await request.send();
-
       if (response.statusCode == 200) {
-        View360ChatPrefs.removeCustomerId();
+        final responseString = await response.stream.bytesToString();
+        debugPrint("close response $responseString");
+        await View360ChatPrefs.remove();
         debugPrint("Chat closed successfully");
+      } else {
+        final responseString = await response.stream.bytesToString();
+        debugPrint(
+          "Failed to close chat: ${response.statusCode} - $responseString",
+        );
       }
     } catch (e) {
-      debugPrint('Failed to close chat');
+      debugPrint('Failed to close chat ${e.toString()}');
     }
   }
 }

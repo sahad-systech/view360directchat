@@ -8,25 +8,21 @@ class View360ChatPrefs {
   static String customerNameKey = 'CUSTOMER_NAME_KEY';
   static String customerEmailKey = 'CUSTOMER_EMAIL_KEY';
   static String customerPhoneKey = 'CUSTOMER_PHONE_KEY';
-  static String customerCondentIdKey = 'CUSTOMER_CONDENT_ID_KEY';
   static String isInQueue = 'IS_IN_QUEUE';
 
-  static Future<void> saveString(
-      {required String chatIdKeyValue,
-      required String customerIdKeyValue,
-      required String customerNameKeyValue,
-      required String customerEmailKeyValue,
-      required String customerPhoneKeyValue,
-      required String customerCondentIdValue,
-      required bool isInQueueValue}) async {
+  static Future<void> saveString({
+    required String customerIdKeyValue,
+    required String customerNameKeyValue,
+    required String customerEmailKeyValue,
+    required String customerPhoneKeyValue,
+    required bool isInQueueValue,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(chatIdKey, chatIdKeyValue);
     await prefs.setBool(isInQueue, isInQueueValue);
     await prefs.setString(customerIdKey, customerIdKeyValue);
     await prefs.setString(customerNameKey, customerNameKeyValue);
     await prefs.setString(customerEmailKey, customerEmailKeyValue);
     await prefs.setString(customerPhoneKey, customerPhoneKeyValue);
-    await prefs.setString(customerCondentIdKey, customerCondentIdValue);
   }
 
   static Future<View360ChatPrefsModel> getString() async {
@@ -38,7 +34,6 @@ class View360ChatPrefs {
       isInQueue: prefs.getBool(isInQueue) ?? false,
       customerEmail: prefs.getString(customerEmailKey) ?? '',
       customerPhone: prefs.getString(customerPhoneKey) ?? '',
-      customerContentId: prefs.getString(customerCondentIdKey) ?? 'false',
     );
   }
 
@@ -50,7 +45,6 @@ class View360ChatPrefs {
     await prefs.remove(customerEmailKey);
     await prefs.remove(customerPhoneKey);
     await prefs.remove(isInQueue);
-    await prefs.remove(customerCondentIdKey);
   }
 
   static Future<String?> getCustomerId() async {
@@ -58,10 +52,10 @@ class View360ChatPrefs {
     return prefs.getString(customerIdKey);
   }
 
-  static Future<String?> getChatId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(chatIdKey);
-  }
+  // static Future<String?> getChatId() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   return prefs.getString(chatIdKey);
+  // }
 
   static Future<bool> removeCustomerId() async {
     final prefs = await SharedPreferences.getInstance();
@@ -73,9 +67,14 @@ class View360ChatPrefs {
     await prefs.setBool(isInQueue, value);
   }
 
-  static Future<void> condentIdInQueue(String value) async {
+  // static Future<void> condentIdInQueue(String value) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.setString(customerCondentIdKey, value);
+  // }
+
+  static Future<void> setChatId(String value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(customerCondentIdKey, value);
+    await prefs.setString(chatIdKey, value);
   }
 
   static Future<void> clear() async {

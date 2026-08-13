@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 // import 'package:flutter_background/flutter_background.dart';
@@ -109,7 +108,7 @@ class LivekitCallService extends ChangeNotifier {
       //         await FlutterBackground.initialize(androidConfig: androidConfig);
       //     if (hasInit) await FlutterBackground.enableBackgroundExecution();
       //   } catch (e) {
-      //     log('Foreground service error: $e');
+      //     debugPrint('Foreground service error: $e');
       //   }
       // }
 
@@ -178,7 +177,7 @@ class LivekitCallService extends ChangeNotifier {
       );
       onRatingSubmitted?.call(rating, feedback);
     } catch (e) {
-      log('Rating submit error: $e');
+      debugPrint('Rating submit error: $e');
     }
   }
 
@@ -236,7 +235,7 @@ class LivekitCallService extends ChangeNotifier {
         'payload',
         'msg',
         'speech',
-        'utterance'
+        'utterance',
       ]) {
         if (json.containsKey(field) && json[field] is String) {
           text = json[field];
@@ -256,16 +255,20 @@ class LivekitCallService extends ChangeNotifier {
         if (role == 'user' || role == 'customer') isUser = true;
       }
 
-      final id = json['id']?.toString() ??
+      final id =
+          json['id']?.toString() ??
           DateTime.now().millisecondsSinceEpoch.toString();
       _updateOrAdd(id: id, text: text, isUser: isUser);
     } catch (e) {
-      log('Data packet error: $e');
+      debugPrint('Data packet error: $e');
     }
   }
 
-  void _updateOrAdd(
-      {required String id, required String text, required bool isUser}) {
+  void _updateOrAdd({
+    required String id,
+    required String text,
+    required bool isUser,
+  }) {
     final idx = _transcripts.indexWhere((t) => t.id == id);
     if (idx != -1) {
       _transcripts[idx] = TranscriptModel(
@@ -275,12 +278,14 @@ class LivekitCallService extends ChangeNotifier {
         timestamp: _transcripts[idx].timestamp,
       );
     } else {
-      _transcripts.add(TranscriptModel(
-        id: id,
-        text: text,
-        isUser: isUser,
-        timestamp: DateTime.now(),
-      ));
+      _transcripts.add(
+        TranscriptModel(
+          id: id,
+          text: text,
+          isUser: isUser,
+          timestamp: DateTime.now(),
+        ),
+      );
     }
     notifyListeners();
   }

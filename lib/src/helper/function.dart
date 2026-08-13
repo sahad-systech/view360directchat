@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
@@ -29,21 +27,17 @@ String getMimeType(String path) {
   }
 }
 
-String generateUniqueId() {
-  final random = Random();
-  final timestamp = DateTime.now().millisecondsSinceEpoch;
-  final randomInt = random.nextInt(100000);
-  return '$timestamp$randomInt';
-}
-
-Future<void> getFCMToken(
-    {required String userId,
-    required String baseUrl,
-    required String appId}) async {
+Future<void> getFCMToken({
+  required String userId,
+  required String baseUrl,
+  required String appId,
+}) async {
   try {
     final token = await FirebaseMessaging.instance.getToken();
-    await ChatService(baseUrl: baseUrl, appId: appId)
-        .notificationToken(token: token!, userId: userId);
+    await ChatService(
+      baseUrl: baseUrl,
+      appId: appId,
+    ).notificationToken(token: token!, userId: userId);
   } catch (e) {
     debugPrint(e.toString());
   }
