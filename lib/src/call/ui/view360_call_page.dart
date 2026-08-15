@@ -44,16 +44,17 @@ class _View360CallPageState extends State<View360CallPage> {
   @override
   void initState() {
     super.initState();
-    _service = LivekitCallService(
-      config: widget.config,
-      userName: widget.userName,
-      userPhone: widget.userPhone,
-      userEmail: widget.userEmail,
-    )
-      ..onCallStarted = widget.onCallStarted
-      ..onCallEnded = widget.onCallEnded
-      ..onRatingSubmitted = widget.onRatingSubmitted
-      ..onError = widget.onError;
+    _service =
+        LivekitCallService(
+            config: widget.config,
+            userName: widget.userName,
+            userPhone: widget.userPhone,
+            userEmail: widget.userEmail,
+          )
+          ..onCallStarted = widget.onCallStarted
+          ..onCallEnded = widget.onCallEnded
+          ..onRatingSubmitted = widget.onRatingSubmitted
+          ..onError = widget.onError;
     _service.addListener(_onServiceUpdate);
   }
 
@@ -61,7 +62,8 @@ class _View360CallPageState extends State<View360CallPage> {
     if (!mounted) return;
     setState(() {});
     // Auto-scroll transcripts
-    if (_service.status == CallStatus.connected && _service.transcripts.isNotEmpty) {
+    if (_service.status == CallStatus.connected &&
+        _service.transcripts.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollController.hasClients) {
           _scrollController.animateTo(
@@ -102,14 +104,18 @@ class _View360CallPageState extends State<View360CallPage> {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDarkMode ? theme.darkBackground : theme.lightBackground,
-      body: SafeArea(
-        child: _buildBody(theme, strings, isDarkMode),
-      ),
+      backgroundColor: isDarkMode
+          ? theme.darkBackground
+          : theme.lightBackground,
+      body: SafeArea(child: _buildBody(theme, strings, isDarkMode)),
     );
   }
 
-  Widget _buildBody(View360CallTheme theme, View360CallStrings strings, bool isDarkMode) {
+  Widget _buildBody(
+    View360CallTheme theme,
+    View360CallStrings strings,
+    bool isDarkMode,
+  ) {
     switch (_service.status) {
       case CallStatus.initial:
         return DisconnectedUI(

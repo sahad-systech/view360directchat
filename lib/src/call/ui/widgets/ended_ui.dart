@@ -71,32 +71,54 @@ class _EndedUIState extends State<EndedUI> {
                     color: Color(0xFFDCFCE7),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.check, color: Color(0xFF16A34A), size: 32),
+                  child: const Icon(
+                    Icons.check,
+                    color: Color(0xFF16A34A),
+                    size: 32,
+                  ),
                 ),
                 const SizedBox(height: 24),
-                Text(strings.feedbackReceived,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Color(0xFF064E3B)),
+                Text(
+                  strings.feedbackReceived,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF064E3B),
+                  ),
                 ),
                 const SizedBox(height: 12),
-                Text(strings.thankYouImprovement,
+                Text(
+                  strings.thankYouImprovement,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF166534)),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF166534),
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 80),
           SizedBox(
-            width: double.infinity, height: 55,
+            width: double.infinity,
+            height: 55,
             child: ElevatedButton(
               onPressed: () => widget.service.reset(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFF1F5F9),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 elevation: 0,
               ),
-              child: Text(strings.startNewCall,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+              child: Text(
+                strings.startNewCall,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E293B),
+                ),
               ),
             ),
           ),
@@ -122,18 +144,33 @@ class _EndedUIState extends State<EndedUI> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.check_circle_outline, color: Color(0xFF16A34A), size: 28),
+                const Icon(
+                  Icons.check_circle_outline,
+                  color: Color(0xFF16A34A),
+                  size: 28,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(strings.callCompleted,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF16A34A)),
+                      Text(
+                        strings.callCompleted,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF16A34A),
+                        ),
                       ),
                       const SizedBox(height: 4),
-                      Text(strings.thankYouSummary,
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF166534), height: 1.4),
+                      Text(
+                        strings.thankYouSummary,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF166534),
+                          height: 1.4,
+                        ),
                       ),
                     ],
                   ),
@@ -153,8 +190,13 @@ class _EndedUIState extends State<EndedUI> {
             ),
             child: Column(
               children: [
-                Text(strings.howWasExperience,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                Text(
+                  strings.howWasExperience,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1E293B),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -164,7 +206,9 @@ class _EndedUIState extends State<EndedUI> {
                       onPressed: () => setState(() => _rating = index + 1),
                       icon: Icon(
                         index < _rating ? Icons.star : Icons.star_border,
-                        color: index < _rating ? const Color(0xFF6366F1) : const Color(0xFFCBD5E1),
+                        color: index < _rating
+                            ? const Color(0xFF6366F1)
+                            : const Color(0xFFCBD5E1),
                         size: 32,
                       ),
                     );
@@ -186,10 +230,18 @@ class _EndedUIState extends State<EndedUI> {
             child: TextField(
               controller: _feedbackController,
               maxLines: null,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF334155)),
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF334155),
+              ),
               decoration: InputDecoration(
                 hintText: strings.feedbackHint,
-                hintStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF94A3B8)),
+                hintStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF94A3B8),
+                ),
                 border: InputBorder.none,
                 isDense: true,
                 contentPadding: EdgeInsets.zero,
@@ -199,35 +251,56 @@ class _EndedUIState extends State<EndedUI> {
           const SizedBox(height: 12),
           // Submit
           SizedBox(
-            width: double.infinity, height: 55,
+            width: double.infinity,
+            height: 55,
             child: ElevatedButton(
-              onPressed: _rating == 0 ? null : () async {
-                await widget.service.submitRating(_rating, _feedbackController.text);
-                setState(() => _isSubmitted = true);
-              },
+              onPressed: _rating == 0
+                  ? null
+                  : () async {
+                      await widget.service.submitRating(
+                        _rating,
+                        _feedbackController.text,
+                      );
+                      setState(() => _isSubmitted = true);
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: theme.primaryColor,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 elevation: 0,
               ),
-              child: Text(strings.done,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+              child: Text(
+                strings.done,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
           const SizedBox(height: 10),
           // Start new call
           SizedBox(
-            width: double.infinity, height: 55,
+            width: double.infinity,
+            height: 55,
             child: ElevatedButton(
               onPressed: () => widget.service.reset(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFF1F5F9),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 elevation: 0,
               ),
-              child: Text(strings.startNewCall,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+              child: Text(
+                strings.startNewCall,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF1E293B),
+                ),
               ),
             ),
           ),

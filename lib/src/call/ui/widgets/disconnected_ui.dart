@@ -45,8 +45,11 @@ class DisconnectedUI extends StatelessWidget {
                   color: theme.primaryColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.mic_none_outlined,
-                    size: 48, color: theme.primaryColor),
+                child: Icon(
+                  Icons.mic_none_outlined,
+                  size: 48,
+                  color: theme.primaryColor,
+                ),
               ),
             ],
           ),

@@ -34,8 +34,10 @@ class ConnectedUI extends StatelessWidget {
                   color: theme.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.phone_in_talk_outlined,
-                    color: theme.primaryColor),
+                child: Icon(
+                  Icons.phone_in_talk_outlined,
+                  color: theme.primaryColor,
+                ),
               ),
               const SizedBox(width: 12),
               Column(
@@ -44,7 +46,9 @@ class ConnectedUI extends StatelessWidget {
                   Text(
                     strings.agentName,
                     style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w700),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   Row(
                     children: [
@@ -52,15 +56,18 @@ class ConnectedUI extends StatelessWidget {
                         width: 8,
                         height: 8,
                         decoration: const BoxDecoration(
-                            color: Colors.green, shape: BoxShape.circle),
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         strings.connectedLabel,
                         style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.green),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.green,
+                        ),
                       ),
                     ],
                   ),
@@ -78,23 +85,29 @@ class ConnectedUI extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.voice_chat_outlined,
-                          size: 40, color: Colors.grey.withValues(alpha: 0.5)),
+                      Icon(
+                        Icons.voice_chat_outlined,
+                        size: 40,
+                        color: Colors.grey.withValues(alpha: 0.5),
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         strings.listeningLabel,
                         style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.w500),
+                          fontSize: 14,
+                          color: Colors.grey,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
                 )
               : ListView.builder(
                   controller: scrollController,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   itemCount: transcripts.length - 1,
                   itemBuilder: (context, index) {
                     final t = transcripts[index + 1];
@@ -205,9 +218,10 @@ class _ControlButton extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-                color: color.withValues(alpha: 0.3),
-                blurRadius: 12,
-                offset: const Offset(0, 6)),
+              color: color.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
           ],
         ),
         child: Icon(icon, color: iconColor, size: isLarge ? 32 : 24),
