@@ -1,3 +1,7 @@
+## 1.0.2
+
+* Updated the channel name.
+
 ## 1.0.1
 
 * update readme.md

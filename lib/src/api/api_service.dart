@@ -48,7 +48,7 @@ class ChatService {
       final body = {
         'ChatId': customerEmail ?? customerPhone!,
         'appId': appId,
-        'channel': 'web',
+        'channel': 'MobileAPP',
         'clientId': '',
         if (customerEmail != null && customerEmail.isNotEmpty)
           'email': customerEmail,
