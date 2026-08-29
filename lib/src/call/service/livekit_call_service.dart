@@ -114,7 +114,7 @@ class LivekitCallService extends ChangeNotifier {
 
       // 8. Speaker
       try {
-        await Hardware.instance.setSpeakerphoneOn(true);
+        await AudioManager.instance.setSpeakerOutputPreferred(true);
         await _room?.startAudio();
       } catch (_) {}
 
@@ -160,7 +160,7 @@ class LivekitCallService extends ChangeNotifier {
   Future<void> toggleSpeaker() async {
     _isSpeakerOn = !_isSpeakerOn;
     try {
-      await Hardware.instance.setSpeakerphoneOn(_isSpeakerOn);
+      await AudioManager.instance.setSpeakerOutputPreferred(_isSpeakerOn);
     } catch (_) {}
     notifyListeners();
   }
