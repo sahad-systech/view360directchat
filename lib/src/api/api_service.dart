@@ -89,8 +89,8 @@ class ChatService {
           isInQueueValue: isQuieue,
           customerIdKeyValue: customerId ?? '',
           customerNameKeyValue: customerName,
-          customerEmailKeyValue: customerEmail ?? '',
-          customerPhoneKeyValue: customerPhone ?? '',
+          customerEmailKeyValue: customerEmail,
+          customerPhoneKeyValue: customerPhone,
         );
         if (fetchFCMToken ?? false) {
           getFCMToken(
@@ -148,7 +148,7 @@ class ChatService {
         ..headers['Origin'] = 'https://view360.cx'
         ..headers['Referer'] = 'https://view360.cx/';
       request.fields.addAll({
-        'chat_id': localstorage.chatId,
+        'chat_id': localstorage.chatId!,
         'content': chatContent,
         'customerId': localstorage.customerId,
       });
@@ -200,7 +200,10 @@ class ChatService {
   Future<ChatListResponse> fetchMessages() async {
     final View360ChatPrefsModel localstorage =
         await View360ChatPrefs.getString();
-    final String chatId = localstorage.chatId;
+    final String? chatId = localstorage.chatId;
+    if (chatId == null || chatId.isEmpty) {
+      return fetchMessagesWhenChatInQueue();
+    }
     final Uri url = Uri.parse(
       '$baseUrl/convapi/customer/message/$chatId?web=true',
     );
@@ -217,6 +220,47 @@ class ChatService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return ChatListResponse.fromJson(data);
+      } else {
+        return ChatListResponse.error(
+          'HTTP error - status code ${response.statusCode}',
+        );
+      }
+    } on SocketException {
+      return ChatListResponse.error('No Internet connection');
+    } on TimeoutException {
+      return ChatListResponse.error('Request timed out');
+    } on HttpException {
+      return ChatListResponse.error('HTTP error occurred');
+    } on FormatException {
+      return ChatListResponse.error('Invalid response format');
+    } catch (e) {
+      return ChatListResponse.error('Unexpected error: ${e.toString()}');
+    }
+  }
+
+  /// Fetches the entire conversation message history when chat is in queue.
+  Future<ChatListResponse> fetchMessagesWhenChatInQueue() async {
+    final View360ChatPrefsModel localstorage =
+        await View360ChatPrefs.getString();
+    final String customerId = localstorage.customerId;
+    final String channelChatId =
+        localstorage.customerEmail ?? localstorage.customerPhone!;
+    final Uri url = Uri.parse(
+      '$baseUrl/convapi/customer/message/chatQueueMessages?customerId=$customerId&channelChatId=$channelChatId',
+    );
+    final headers = {
+      'app-id': appId,
+      'Origin': 'https://view360.cx',
+      'Referer': 'https://view360.cx/',
+    };
+
+    try {
+      final response = await http
+          .get(url, headers: headers)
+          .timeout(const Duration(seconds: 20)); // Optional: set timeout
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return ChatListResponse.fromJson2(data);
       } else {
         return ChatListResponse.error(
           'HTTP error - status code ${response.statusCode}',
@@ -266,8 +310,9 @@ class ChatService {
   /// Closes the active chat session on the server and clears local preferences.
   Future<void> closeChat() async {
     final localstorage = await View360ChatPrefs.getString();
-    final String chatId = localstorage.chatId;
     try {
+      final String chatId = localstorage.chatId!;
+
       var headers = {
         'app-id': appId,
         'origin': 'https://view360.cx',
@@ -298,4 +343,3 @@ class ChatService {
     }
   }
 }
-

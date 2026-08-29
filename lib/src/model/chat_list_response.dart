@@ -26,6 +26,13 @@ class ChatListResponse {
     );
   }
 
+  factory ChatListResponse.fromJson2(List<dynamic> jsonList) {
+    return ChatListResponse(
+      success: true,
+      messages: jsonList.map((e) => ChatMessage.fromJson(e)).toList(),
+    );
+  }
+
   /// Constructs an error [ChatListResponse] with the provided [errorMessage].
   factory ChatListResponse.error(String errorMessage) {
     return ChatListResponse(
@@ -73,4 +80,3 @@ class ChatMessage {
     );
   }
 }
-

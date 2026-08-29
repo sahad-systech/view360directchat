@@ -1,7 +1,7 @@
 /// Model representing cached chat session state and customer details in local preferences.
 class View360ChatPrefsModel {
   /// The active chat session ID.
-  final String chatId;
+  final String? chatId;
 
   /// The customer ID assigned by the server.
   final String customerId;
@@ -10,10 +10,10 @@ class View360ChatPrefsModel {
   final String customerName;
 
   /// The customer's registered email address.
-  final String customerEmail;
+  final String? customerEmail;
 
   /// The customer's registered phone number.
-  final String customerPhone;
+  final String? customerPhone;
 
   /// Whether the customer is currently in a waiting queue.
   final bool isInQueue;
@@ -21,11 +21,10 @@ class View360ChatPrefsModel {
   /// Creates a [View360ChatPrefsModel] instance.
   View360ChatPrefsModel({
     required this.isInQueue,
-    required this.chatId,
+    this.chatId,
     required this.customerId,
     required this.customerName,
-    required this.customerEmail,
-    required this.customerPhone,
+    this.customerEmail,
+    this.customerPhone,
   });
 }
-

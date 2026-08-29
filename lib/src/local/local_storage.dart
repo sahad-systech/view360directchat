@@ -28,23 +28,27 @@ class View360ChatPrefs {
   static Future<void> saveString({
     required String customerIdKeyValue,
     required String customerNameKeyValue,
-    required String customerEmailKeyValue,
-    required String customerPhoneKeyValue,
+    String? customerEmailKeyValue,
+    String? customerPhoneKeyValue,
     required bool isInQueueValue,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(isInQueue, isInQueueValue);
     await prefs.setString(customerIdKey, customerIdKeyValue);
     await prefs.setString(customerNameKey, customerNameKeyValue);
-    await prefs.setString(customerEmailKey, customerEmailKeyValue);
-    await prefs.setString(customerPhoneKey, customerPhoneKeyValue);
+    if (customerEmailKeyValue != null) {
+      await prefs.setString(customerEmailKey, customerEmailKeyValue);
+    }
+    if (customerPhoneKeyValue != null) {
+      await prefs.setString(customerPhoneKey, customerPhoneKeyValue);
+    }
   }
 
   /// Retrieves the saved session and customer model from local preferences.
   static Future<View360ChatPrefsModel> getString() async {
     final prefs = await SharedPreferences.getInstance();
     return View360ChatPrefsModel(
-      chatId: prefs.getString(chatIdKey) ?? '',
+      chatId: prefs.getString(chatIdKey),
       customerId: prefs.getString(customerIdKey) ?? '',
       customerName: prefs.getString(customerNameKey) ?? '',
       isInQueue: prefs.getBool(isInQueue) ?? false,
@@ -94,4 +98,3 @@ class View360ChatPrefs {
     await prefs.clear();
   }
 }
-
