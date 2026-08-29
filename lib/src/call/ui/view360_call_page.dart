@@ -7,18 +7,42 @@ import 'widgets/connected_ui.dart';
 import 'widgets/disconnected_ui.dart';
 import 'widgets/ended_ui.dart';
 
+/// A full-screen AI Voice Call widget powered by LiveKit WebRTC.
+///
+/// Handles audio calling, live speech transcripts, visualizer animation,
+/// microphone/speaker toggling, and post-call feedback ratings.
 class View360CallPage extends StatefulWidget {
+  /// LiveKit connection configuration (endpoints and keys).
   final View360CallConfig config;
+
+  /// User's full name.
   final String userName;
+
+  /// User's phone number.
   final String userPhone;
+
+  /// User's email address.
   final String userEmail;
+
+  /// Optional UI theme colors customization.
   final View360CallTheme? theme;
+
+  /// Optional UI localized text strings customization.
   final View360CallStrings? strings;
+
+  /// Callback fired when call is successfully connected.
   final VoidCallback? onCallStarted;
+
+  /// Callback fired when call is terminated.
   final VoidCallback? onCallEnded;
+
+  /// Callback fired when user submits call rating and feedback.
   final void Function(int rating, String feedback)? onRatingSubmitted;
+
+  /// Callback fired when an error occurs.
   final void Function(String error)? onError;
 
+  /// Creates a [View360CallPage] widget.
   const View360CallPage({
     super.key,
     required this.config,
@@ -32,6 +56,7 @@ class View360CallPage extends StatefulWidget {
     this.onRatingSubmitted,
     this.onError,
   });
+
 
   @override
   State<View360CallPage> createState() => _View360CallPageState();

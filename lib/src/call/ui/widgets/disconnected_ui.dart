@@ -3,13 +3,24 @@ import '../../config/call_strings.dart';
 import '../../config/call_theme.dart';
 import '../../service/livekit_call_service.dart';
 
+/// UI component rendered when a voice call is not connected or in loading state.
 class DisconnectedUI extends StatelessWidget {
+  /// The active LiveKit call service instance.
   final LivekitCallService service;
+
+  /// Theme styling options.
   final View360CallTheme theme;
+
+  /// Localized UI text strings.
   final View360CallStrings strings;
+
+  /// Whether dark mode is enabled.
   final bool isDarkMode;
+
+  /// Whether a connection attempt is currently in progress.
   final bool isConnecting;
 
+  /// Creates a [DisconnectedUI] widget.
   const DisconnectedUI({
     super.key,
     required this.service,
@@ -18,6 +29,7 @@ class DisconnectedUI extends StatelessWidget {
     required this.isDarkMode,
     required this.isConnecting,
   });
+
 
   @override
   Widget build(BuildContext context) {

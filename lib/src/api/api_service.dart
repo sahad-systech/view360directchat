@@ -14,12 +14,19 @@ import '../model/sending_response.dart';
 import '../model/storage_pre_model.dart';
 import '../socket/socket_managet.dart';
 
+/// Service responsible for managing View360 chat HTTP API interactions,
+/// session registration, message delivery, history retrieval, and session termination.
 class ChatService {
+  /// The base URL for the View360 API endpoints.
   final String baseUrl;
+
+  /// The unique application identifier assigned by View360.
   final String appId;
 
+  /// Creates an instance of [ChatService] with the specified [baseUrl] and [appId].
   ChatService({required this.baseUrl, required this.appId});
 
+  /// Emits socket events to set up customer session and join the chat room.
   Future<void> socketEmitIsWorking(String customerId) async {
     Future.delayed(const Duration(seconds: 1), () {
       SocketManager().socket.emit("customerSetup", {"id": customerId});
@@ -27,6 +34,14 @@ class ChatService {
     });
   }
 
+  /// Creates a new chat session on View360 backend for a customer.
+  ///
+  /// [chatContent] is the initial message sent by the customer.
+  /// [customerName] is the display name of the customer.
+  /// [customerEmail] is the optional email of the customer.
+  /// [customerPhone] is the optional phone number of the customer.
+  /// [languageInstance] is the optional language preference.
+  /// [fetchFCMToken] when true will automatically request and register the FCM token.
   Future<ChateRegisterResponse> createChatSession({
     required String chatContent,
     required String customerName,
@@ -104,6 +119,10 @@ class ChatService {
     }
   }
 
+  /// Sends a text message with optional file attachments to the active chat session.
+  ///
+  /// [chatContent] contains the text content of the message.
+  /// [filePath] is an optional list of absolute file paths to attach (supports .jpg, .jpeg, .png, .pdf, .gif, .mp4, .xlsx, .csv).
   Future<ChatSentResponse> sendChatMessage({
     List<String>? filePath,
     required String chatContent,
@@ -177,6 +196,7 @@ class ChatService {
     }
   }
 
+  /// Fetches the entire conversation message history for the currently active chat session.
   Future<ChatListResponse> fetchMessages() async {
     final View360ChatPrefsModel localstorage =
         await View360ChatPrefs.getString();
@@ -215,6 +235,7 @@ class ChatService {
     }
   }
 
+  /// Registers or updates the Firebase Cloud Messaging [token] for the given [userId].
   Future<void> notificationToken({
     required String token,
     required String userId,
@@ -242,6 +263,7 @@ class ChatService {
     }
   }
 
+  /// Closes the active chat session on the server and clears local preferences.
   Future<void> closeChat() async {
     final localstorage = await View360ChatPrefs.getString();
     final String chatId = localstorage.chatId;
@@ -276,3 +298,4 @@ class ChatService {
     }
   }
 }
+

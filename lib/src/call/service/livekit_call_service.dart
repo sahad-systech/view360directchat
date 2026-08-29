@@ -10,18 +10,49 @@ import '../config/call_config.dart';
 import '../model/fetch_token_model.dart';
 import '../model/transcript_model.dart';
 
-enum CallStatus { initial, loading, connected, ended, error }
+/// Represents the lifecycle states of a LiveKit voice call.
+enum CallStatus {
+  /// Initial idle state before initiating a call.
+  initial,
 
+  /// Connecting state while fetching credentials and joining the room.
+  loading,
+
+  /// Active call connected state.
+  connected,
+
+  /// Terminated call state.
+  ended,
+
+  /// Encountered an error state.
+  error,
+}
+
+/// Service managing LiveKit WebRTC audio connection, microphone/speaker controls,
+/// live transcript streaming, and post-call feedback ratings.
 class LivekitCallService extends ChangeNotifier {
+  /// Call configuration containing endpoints and API keys.
   final View360CallConfig config;
+
+  /// Full name of the user starting the call.
   final String userName;
+
+  /// Contact phone number of the user.
   final String userPhone;
+
+  /// Contact email address of the user.
   final String userEmail;
 
-  // Callbacks
+  /// Callback fired when the voice call successfully connects.
   VoidCallback? onCallStarted;
+
+  /// Callback fired when the voice call ends.
   VoidCallback? onCallEnded;
+
+  /// Callback fired when rating and feedback are submitted.
   void Function(int rating, String feedback)? onRatingSubmitted;
+
+  /// Callback fired when an error occurs during call connection or execution.
   void Function(String error)? onError;
 
   CallStatus _status = CallStatus.initial;
@@ -35,6 +66,7 @@ class LivekitCallService extends ChangeNotifier {
   Room? _room;
   Timer? _audioLevelTimer;
 
+  /// Creates a [LivekitCallService] instance.
   LivekitCallService({
     required this.config,
     required this.userName,
@@ -42,15 +74,28 @@ class LivekitCallService extends ChangeNotifier {
     required this.userEmail,
   });
 
-  // Getters
+  /// The current lifecycle status of the call.
   CallStatus get status => _status;
+
+  /// The error message if [status] is [CallStatus.error].
   String get errorMessage => _errorMessage;
+
+  /// The active LiveKit room identifier.
   String get currentRoom => _currentRoom;
+
+  /// Whether the user microphone is currently muted.
   bool get isMuted => _isMuted;
+
+  /// Whether audio is currently routed through the loudspeaker.
   bool get isSpeakerOn => _isSpeakerOn;
+
+  /// Current audio volume level (0.0 to 1.0).
   double get audioLevel => _audioLevel;
+
+  /// List of live transcript utterances exchanged during the call.
   List<TranscriptModel> get transcripts => List.unmodifiable(_transcripts);
 
+  /// Connects to the LiveKit server and establishes an active audio call.
   Future<void> connect() async {
     _setStatus(CallStatus.loading);
 
@@ -134,6 +179,7 @@ class LivekitCallService extends ChangeNotifier {
     }
   }
 
+  /// Disconnects from the current call and cleans up room resources.
   Future<void> disconnect() async {
     _audioLevelTimer?.cancel();
     await _cleanupAndroid();
@@ -150,6 +196,7 @@ class LivekitCallService extends ChangeNotifier {
     }
   }
 
+  /// Toggles the local microphone between muted and unmuted.
   Future<void> toggleMute() async {
     if (_room == null) return;
     _isMuted = !_isMuted;
@@ -157,6 +204,7 @@ class LivekitCallService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Toggles the audio output between speaker and earpiece.
   Future<void> toggleSpeaker() async {
     _isSpeakerOn = !_isSpeakerOn;
     try {
@@ -165,6 +213,7 @@ class LivekitCallService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Submits post-call customer rating ([rating], 1-5) and text [feedback].
   Future<void> submitRating(int rating, String feedback) async {
     try {
       final url = Uri.parse(
@@ -181,12 +230,14 @@ class LivekitCallService extends ChangeNotifier {
     }
   }
 
+  /// Resets the call state back to [CallStatus.initial].
   void reset() {
     _currentRoom = '';
     _errorMessage = '';
     _transcripts.clear();
     _setStatus(CallStatus.initial);
   }
+
 
   // ─── Private ──────────────────────────────────────────────────────────────
 

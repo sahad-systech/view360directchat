@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'package:view360directchat/view360directchat.dart';
 
+/// Callback signature triggered when a new message is received via socket.
 typedef OnMessageReceived =
     void Function({
       required String content,
@@ -11,21 +12,38 @@ typedef OnMessageReceived =
       required String createdAt,
     });
 
+/// Callback signature triggered when an agent joins the chat room.
 typedef OnAgentJoin = void Function({required String name});
 
+/// Callback signature triggered when an agent closes the chat session.
 typedef OnAgentClose = void Function();
 
+/// Singleton manager for real-time WebSocket communication with View360 socket server.
 class SocketManager {
   static final SocketManager _instance = SocketManager._internal();
   late io.Socket _socket;
+
+  /// Callback executed upon receiving a message.
   OnMessageReceived? onMessageReceived;
+
+  /// Callback executed when an agent joins the conversation.
   OnAgentJoin? onAgentJoin;
+
+  /// Callback executed when an agent terminates the chat session.
   OnAgentClose? onAgentClose;
 
+  /// Returns the singleton instance of [SocketManager].
   factory SocketManager() => _instance;
 
   SocketManager._internal();
 
+  /// Connects to the View360 socket server at [baseUrl] with specified callbacks.
+  ///
+  /// [baseUrl] is the target host domain.
+  /// [onMessage] handles incoming chat messages.
+  /// [onAgentJoin] handles agent join events.
+  /// [onAgentClose] handles session closure events.
+  /// [onConnected] callback triggered when the socket connection is successfully established.
   void connect({
     required String baseUrl,
     OnMessageReceived? onMessage,
@@ -96,10 +114,13 @@ class SocketManager {
     });
   }
 
+  /// The underlying [io.Socket] instance.
   io.Socket get socket => _socket;
 
+  /// Disconnects the socket and removes all event listeners.
   void disconnect() {
     _socket.clearListeners();
     _socket.disconnect();
   }
 }
+

@@ -1,3 +1,5 @@
+/// A Flutter package providing real-time socket connections, HTTP APIs,
+/// LiveKit audio/video calling, and push messaging for View360 direct chat.
 library;
 
 export 'src/api/api_service.dart';

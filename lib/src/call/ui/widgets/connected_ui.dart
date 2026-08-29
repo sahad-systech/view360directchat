@@ -4,12 +4,21 @@ import '../../config/call_theme.dart';
 import '../../service/livekit_call_service.dart';
 import 'message_bubble.dart';
 
+/// UI component rendered when a voice call is actively connected.
 class ConnectedUI extends StatelessWidget {
+  /// The active LiveKit call service instance.
   final LivekitCallService service;
+
+  /// Theme styling options.
   final View360CallTheme theme;
+
+  /// Localized UI text strings.
   final View360CallStrings strings;
+
+  /// Scroll controller for automatic transcript scrolling.
   final ScrollController scrollController;
 
+  /// Creates a [ConnectedUI] widget.
   const ConnectedUI({
     super.key,
     required this.service,
@@ -17,6 +26,7 @@ class ConnectedUI extends StatelessWidget {
     required this.strings,
     required this.scrollController,
   });
+
 
   @override
   Widget build(BuildContext context) {

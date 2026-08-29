@@ -2,14 +2,29 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../model/storage_pre_model.dart';
 
+/// Helper utility for persisting and reading View360 chat session data using [SharedPreferences].
 class View360ChatPrefs {
+  View360ChatPrefs._();
+
+  /// Preference key for stored chat ID.
   static String chatIdKey = 'CHAT_ID_KEY';
+
+  /// Preference key for stored customer ID.
   static String customerIdKey = 'CUSTOMER_ID_KEY';
+
+  /// Preference key for stored customer name.
   static String customerNameKey = 'CUSTOMER_NAME_KEY';
+
+  /// Preference key for stored customer email.
   static String customerEmailKey = 'CUSTOMER_EMAIL_KEY';
+
+  /// Preference key for stored customer phone number.
   static String customerPhoneKey = 'CUSTOMER_PHONE_KEY';
+
+  /// Preference key for queue status.
   static String isInQueue = 'IS_IN_QUEUE';
 
+  /// Saves session and customer details to local preferences.
   static Future<void> saveString({
     required String customerIdKeyValue,
     required String customerNameKeyValue,
@@ -25,6 +40,7 @@ class View360ChatPrefs {
     await prefs.setString(customerPhoneKey, customerPhoneKeyValue);
   }
 
+  /// Retrieves the saved session and customer model from local preferences.
   static Future<View360ChatPrefsModel> getString() async {
     final prefs = await SharedPreferences.getInstance();
     return View360ChatPrefsModel(
@@ -37,6 +53,7 @@ class View360ChatPrefs {
     );
   }
 
+  /// Removes all stored chat keys from local preferences.
   static Future<void> remove() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(chatIdKey);
@@ -47,38 +64,34 @@ class View360ChatPrefs {
     await prefs.remove(isInQueue);
   }
 
+  /// Retrieves the saved customer ID, or `null` if none is saved.
   static Future<String?> getCustomerId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(customerIdKey);
   }
 
-  // static Future<String?> getChatId() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   return prefs.getString(chatIdKey);
-  // }
-
+  /// Removes only the customer ID key from preferences.
   static Future<bool> removeCustomerId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.remove(customerIdKey);
   }
 
+  /// Updates the stored queue status flag.
   static Future<void> changeQueueStatus(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(isInQueue, value);
   }
 
-  // static Future<void> condentIdInQueue(String value) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   await prefs.setString(customerCondentIdKey, value);
-  // }
-
+  /// Sets the active chat ID in preferences.
   static Future<void> setChatId(String value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(chatIdKey, value);
   }
 
+  /// Clears all preferences completely.
   static Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
   }
 }
+

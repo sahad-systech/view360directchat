@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../api/api_service.dart';
 
+/// Resolves the standard MIME content type string based on the given file [path] extension.
 String getMimeType(String path) {
   final extension = path.split('.').last.toLowerCase();
 
@@ -27,6 +28,7 @@ String getMimeType(String path) {
   }
 }
 
+/// Fetches the Firebase Cloud Messaging device token and syncs it with View360 servers.
 Future<void> getFCMToken({
   required String userId,
   required String baseUrl,

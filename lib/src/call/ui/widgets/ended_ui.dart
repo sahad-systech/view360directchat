@@ -3,12 +3,21 @@ import '../../config/call_strings.dart';
 import '../../config/call_theme.dart';
 import '../../service/livekit_call_service.dart';
 
+/// UI component rendered when a call terminates, presenting feedback & rating options.
 class EndedUI extends StatefulWidget {
+  /// The active LiveKit call service instance.
   final LivekitCallService service;
+
+  /// Theme styling options.
   final View360CallTheme theme;
+
+  /// Localized UI text strings.
   final View360CallStrings strings;
+
+  /// The room identifier of the terminated call.
   final String room;
 
+  /// Creates an [EndedUI] widget.
   const EndedUI({
     super.key,
     required this.service,
@@ -16,6 +25,7 @@ class EndedUI extends StatefulWidget {
     required this.strings,
     required this.room,
   });
+
 
   @override
   State<EndedUI> createState() => _EndedUIState();

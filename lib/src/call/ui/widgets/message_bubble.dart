@@ -2,12 +2,21 @@ import 'package:flutter/material.dart';
 import '../../config/call_strings.dart';
 import '../../config/call_theme.dart';
 
+/// Bubble widget displaying a single message or transcript utterance in the call screen.
 class MessageBubble extends StatelessWidget {
+  /// The transcript text content.
   final String text;
+
+  /// Whether the utterance is from the local user.
   final bool isUser;
+
+  /// Theme styling options.
   final View360CallTheme theme;
+
+  /// Localized UI text strings.
   final View360CallStrings strings;
 
+  /// Creates a [MessageBubble] widget.
   const MessageBubble({
     super.key,
     required this.text,
@@ -15,6 +24,7 @@ class MessageBubble extends StatelessWidget {
     required this.theme,
     required this.strings,
   });
+
 
   @override
   Widget build(BuildContext context) {
