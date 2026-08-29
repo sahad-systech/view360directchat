@@ -1,3 +1,8 @@
+## 1.0.3
+
+* pass static analysis.
+* adding docs.
+
 ## 1.0.2
 
 * Updated the channel name.
