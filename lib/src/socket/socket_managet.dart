@@ -18,6 +18,9 @@ typedef OnAgentJoin = void Function({required String name});
 /// Callback signature triggered when an agent closes the chat session.
 typedef OnAgentClose = void Function();
 
+/// Callback signature triggered when an agent closes the chat session.
+typedef OnChatTransfer = void Function({required String name});
+
 /// Singleton manager for real-time WebSocket communication with View360 socket server.
 class SocketManager {
   static final SocketManager _instance = SocketManager._internal();
@@ -32,6 +35,9 @@ class SocketManager {
   /// Callback executed when an agent terminates the chat session.
   OnAgentClose? onAgentClose;
 
+  /// Callback executed when an agent terminates the chat session.
+  OnChatTransfer? onChatTransfer;
+
   /// Returns the singleton instance of [SocketManager].
   factory SocketManager() => _instance;
 
@@ -43,17 +49,20 @@ class SocketManager {
   /// [onMessage] handles incoming chat messages.
   /// [onAgentJoin] handles agent join events.
   /// [onAgentClose] handles session closure events.
+  /// [onChatTransfer] handles chat transfer events.
   /// [onConnected] callback triggered when the socket connection is successfully established.
   void connect({
     required String baseUrl,
     OnMessageReceived? onMessage,
     OnAgentJoin? onAgentJoin,
     OnAgentClose? onAgentClose,
+    OnChatTransfer? onChatTransfer,
     void Function()? onConnected,
   }) {
     onMessageReceived = onMessage;
     onAgentJoin = onAgentJoin;
     onAgentClose = onAgentClose;
+    onChatTransfer = onChatTransfer;
     // ✅ Initialize the socket first
     _socket = io.io(
       baseUrl,
@@ -96,6 +105,9 @@ class SocketManager {
       View360ChatPrefs.removeCustomerId();
       onAgentClose?.call();
     });
+    _socket.on('chat_transfer_event', (data) {
+      onChatTransfer?.call(name: data['agentName'] ?? '');
+    });
 
     _socket.off('message received');
     _socket.on('message received', (data) {
@@ -123,4 +135,3 @@ class SocketManager {
     _socket.disconnect();
   }
 }
-

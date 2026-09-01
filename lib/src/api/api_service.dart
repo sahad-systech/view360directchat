@@ -50,11 +50,6 @@ class ChatService {
     String? languageInstance,
     bool? fetchFCMToken = false,
   }) async {
-    if (customerEmail == null && customerPhone == null) {
-      throw ChateRegisterResponse.error(
-        'Customer email or phone is required please update your profile',
-      );
-    }
     final String updatedBaseUrl = baseUrl.replaceAll('https://', '');
     try {
       final uri = Uri.https(updatedBaseUrl, "/convapi/chat-integration/chat");
