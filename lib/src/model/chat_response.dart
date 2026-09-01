@@ -7,38 +7,27 @@ class ChateRegisterResponse {
   final String? message;
 
   /// Indicates whether the customer was placed in a waiting queue for an agent.
-  final bool isInQueue;
+  final bool? isInQueue;
 
   /// Creates a [ChateRegisterResponse] instance.
-  const ChateRegisterResponse({
-    required this.success,
-    this.message,
-    required this.isInQueue,
-  });
+  const ChateRegisterResponse(
+      {required this.success, this.message, this.isInQueue});
 
   /// Constructs a [ChateRegisterResponse] from decoded JSON data.
   factory ChateRegisterResponse.fromJson(Map<String, dynamic> json) {
-    final bool isInQueue = json['is_queue'] ?? false;
-    if (isInQueue) {
+    final bool? isInQueue = json['is_queue'];
+    if (isInQueue == true) {
       return ChateRegisterResponse(
-        success: true,
+        success: false,
         message: json['message'] ?? 'Agent not available',
         isInQueue: true,
       );
     }
 
-    return const ChateRegisterResponse(
-      success: true,
-      isInQueue: false,
-    );
+    return const ChateRegisterResponse(success: true, isInQueue: false);
   }
 
   /// Constructs an error [ChateRegisterResponse] with the specified [errorMessage].
   factory ChateRegisterResponse.error(String errorMessage) =>
-      ChateRegisterResponse(
-        success: false,
-        message: errorMessage,
-        isInQueue: false,
-      );
+      ChateRegisterResponse(success: false, message: errorMessage);
 }
-

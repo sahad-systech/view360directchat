@@ -50,6 +50,11 @@ class ChatService {
     String? languageInstance,
     bool? fetchFCMToken = false,
   }) async {
+    if (customerEmail == null && customerPhone == null) {
+      throw ChateRegisterResponse.error(
+        'Customer email or phone is required please update your profile',
+      );
+    }
     final String updatedBaseUrl = baseUrl.replaceAll('https://', '');
     try {
       final uri = Uri.https(updatedBaseUrl, "/convapi/chat-integration/chat");
@@ -80,13 +85,14 @@ class ChatService {
       request.body = jsonEncode(body);
       final response = await request.send();
       final responseString = await response.stream.bytesToString();
+
       if (response.statusCode == 200 || response.statusCode == 304) {
         final json = jsonDecode(responseString);
-        final bool isQuieue = json['is_queue'] ?? false;
+        final bool isQueue = json['is_queue'] ?? false;
         final customerId = json['customer']['id']?.toString();
         await socketEmitIsWorking(customerId ?? '');
         await View360ChatPrefs.saveString(
-          isInQueueValue: isQuieue,
+          isInQueueValue: isQueue,
           customerIdKeyValue: customerId ?? '',
           customerNameKeyValue: customerName,
           customerEmailKeyValue: customerEmail,

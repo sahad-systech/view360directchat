@@ -48,7 +48,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _addLog(String log) {
     setState(() {
-      _logs.insert(0, '[${DateTime.now().toIso8601String().substring(11, 19)}] $log');
+      _logs.insert(
+        0,
+        '[${DateTime.now().toIso8601String().substring(11, 19)}] $log',
+      );
     });
   }
 
@@ -62,7 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (baseUrl.isEmpty || appId.isEmpty || name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in Base URL, App ID, and Name')),
+        const SnackBar(
+          content: Text('Please fill in Base URL, App ID, and Name'),
+        ),
       );
       return;
     }
@@ -74,14 +79,16 @@ class _HomeScreenState extends State<HomeScreen> {
       final chatService = ChatService(baseUrl: baseUrl, appId: appId);
 
       final response = await chatService.createChatSession(
-        chatContent: message.isNotEmpty ? message : 'Hello from View360 Flutter Example!',
+        chatContent: message.isNotEmpty
+            ? message
+            : 'Hello from View360 Flutter Example!',
         customerName: name,
         customerEmail: email.isNotEmpty ? email : null,
         customerPhone: phone.isNotEmpty ? phone : null,
       );
 
       if (response.success) {
-        if (response.isInQueue) {
+        if (response.isInQueue!) {
           _addLog('Chat registered! Waiting in queue for an available agent.');
         } else {
           _addLog('Chat session created successfully!');
@@ -115,9 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
           userEmail: _emailController.text.trim().isNotEmpty
               ? _emailController.text.trim()
               : 'john.doe@example.com',
-          theme: const View360CallTheme(
-            primaryColor: Color(0xFF5D59E1),
-          ),
+          theme: const View360CallTheme(primaryColor: Color(0xFF5D59E1)),
           strings: const View360CallStrings(
             agentName: 'View360 Voice Assistant',
           ),

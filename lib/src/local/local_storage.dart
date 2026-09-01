@@ -74,6 +74,12 @@ class View360ChatPrefs {
     return prefs.getString(customerIdKey);
   }
 
+  /// Retrieves the saved customer ID, or `null` if none is saved.
+  static Future<String?> getChatId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(chatIdKey);
+  }
+
   /// Removes only the customer ID key from preferences.
   static Future<bool> removeCustomerId() async {
     final prefs = await SharedPreferences.getInstance();
