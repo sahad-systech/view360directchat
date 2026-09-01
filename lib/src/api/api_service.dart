@@ -50,6 +50,11 @@ class ChatService {
     String? languageInstance,
     bool? fetchFCMToken = false,
   }) async {
+    if (customerEmail == null && customerPhone == null) {
+      throw ChateRegisterResponse.error(
+        'Customer email or phone is required please update your profile',
+      );
+    }
     final String updatedBaseUrl = baseUrl.replaceAll('https://', '');
     try {
       final uri = Uri.https(updatedBaseUrl, "/convapi/chat-integration/chat");
@@ -103,20 +108,20 @@ class ChatService {
 
         return ChateRegisterResponse.fromJson(json);
       } else {
-        return ChateRegisterResponse.error(
+        throw Exception(
           'Failed with status ${response.statusCode}: $responseString',
         );
       }
     } on SocketException {
-      return ChateRegisterResponse.error('No Internet connection');
+      throw Exception('No Internet connection');
     } on TimeoutException {
-      return ChateRegisterResponse.error('Request timed out');
+      throw Exception('Request timed out');
     } on HttpException {
-      return ChateRegisterResponse.error('HTTP error occurred');
+      throw Exception('HTTP error occurred');
     } on FormatException {
-      return ChateRegisterResponse.error('Invalid response format');
+      throw Exception('Invalid response format');
     } catch (e) {
-      return ChateRegisterResponse.error(e.toString());
+      throw Exception(e.toString());
     }
   }
 
