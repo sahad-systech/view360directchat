@@ -1,3 +1,7 @@
+## 1.0.4
+
+* update api response.
+
 ## 1.0.3
 
 * pass static analysis.
