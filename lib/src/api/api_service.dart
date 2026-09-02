@@ -268,20 +268,20 @@ class ChatService {
         final data = jsonDecode(response.body);
         return ChatListResponse.fromJson2(data);
       } else {
-        return ChatListResponse.error(
+        return ChatListResponse.error2(
           'HTTP error - status code ${response.statusCode}',
         );
       }
     } on SocketException {
-      return ChatListResponse.error('No Internet connection');
+      return ChatListResponse.error2('No Internet connection');
     } on TimeoutException {
-      return ChatListResponse.error('Request timed out');
+      return ChatListResponse.error2('Request timed out');
     } on HttpException {
-      return ChatListResponse.error('HTTP error occurred');
+      return ChatListResponse.error2('HTTP error occurred');
     } on FormatException {
-      return ChatListResponse.error('Invalid response format');
+      return ChatListResponse.error2('Invalid response format');
     } catch (e) {
-      return ChatListResponse.error('Unexpected error: ${e.toString()}');
+      return ChatListResponse.error2('Unexpected error: ${e.toString()}');
     }
   }
 

@@ -9,10 +9,14 @@ class ChatListResponse {
   /// Error description if the request failed.
   final String? error;
 
+  /// Indicates whether the customer is in a queue.
+  final bool isInQueue;
+
   /// Creates an instance of [ChatListResponse].
   ChatListResponse({
     required this.success,
     required this.messages,
+    required this.isInQueue,
     this.error,
   });
 
@@ -20,6 +24,7 @@ class ChatListResponse {
   factory ChatListResponse.fromJson(Map<String, dynamic> json) {
     return ChatListResponse(
       success: true,
+      isInQueue: false,
       messages: (json['messagesInChat'] as List<dynamic>)
           .map((e) => ChatMessage.fromJson(e))
           .toList(),
@@ -29,6 +34,7 @@ class ChatListResponse {
   factory ChatListResponse.fromJson2(List<dynamic> jsonList) {
     return ChatListResponse(
       success: true,
+      isInQueue: true,
       messages: jsonList.map((e) => ChatMessage.fromJson(e)).toList(),
     );
   }
@@ -37,6 +43,15 @@ class ChatListResponse {
   factory ChatListResponse.error(String errorMessage) {
     return ChatListResponse(
       success: false,
+      isInQueue: false,
+      messages: [],
+      error: errorMessage,
+    );
+  }
+  factory ChatListResponse.error2(String errorMessage) {
+    return ChatListResponse(
+      success: false,
+      isInQueue: true,
       messages: [],
       error: errorMessage,
     );
