@@ -18,6 +18,9 @@ typedef OnAgentJoin = void Function({required String name});
 /// Callback signature triggered when an agent closes the chat session.
 typedef OnAgentClose = void Function();
 
+/// Callback signature triggered when an agent  the chat session due to inactivity.
+typedef OnRemovedByInActivity = void Function({required String reason});
+
 /// Callback signature triggered when an agent closes the chat session.
 typedef OnChatTransfer = void Function({required String name});
 
@@ -38,6 +41,9 @@ class SocketManager {
   /// Callback executed when an agent terminates the chat session.
   OnChatTransfer? onChatTransfer;
 
+  /// Callback executed when an agent due to inactivity the chat session.
+  OnAgentClose? onRemovedByInActivity;
+
   /// Returns the singleton instance of [SocketManager].
   factory SocketManager() => _instance;
 
@@ -50,6 +56,7 @@ class SocketManager {
   /// [onAgentJoin] handles agent join events.
   /// [onAgentClose] handles session closure events.
   /// [onChatTransfer] handles chat transfer events.
+  /// [onRemovedByInActivity] handles chat removed events.
   /// [onConnected] callback triggered when the socket connection is successfully established.
   void connect({
     required String baseUrl,
@@ -57,12 +64,14 @@ class SocketManager {
     OnAgentJoin? onAgentJoin,
     OnAgentClose? onAgentClose,
     OnChatTransfer? onChatTransfer,
+    OnRemovedByInActivity? onRemovedByInActivity,
     void Function()? onConnected,
   }) {
     onMessageReceived = onMessage;
     onAgentJoin = onAgentJoin;
     onAgentClose = onAgentClose;
     onChatTransfer = onChatTransfer;
+    onRemovedByInActivity = onRemovedByInActivity;
     // ✅ Initialize the socket first
     _socket = io.io(
       baseUrl,
@@ -104,6 +113,14 @@ class SocketManager {
     _socket.on('chat_closed', (data) {
       View360ChatPrefs.removeCustomerId();
       onAgentClose?.call();
+    });
+    _socket.on('chat_removed', (data) {
+      View360ChatPrefs.removeCustomerId();
+      onRemovedByInActivity?.call(
+        reason:
+            data['message'] ??
+            'chat session has been closed due to inactivity.',
+      );
     });
     _socket.on('chat_transfer_event', (data) {
       onChatTransfer?.call(name: data['agentName'] ?? '');
