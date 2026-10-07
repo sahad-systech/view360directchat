@@ -2,6 +2,8 @@
 /// LiveKit audio/video calling, and push messaging for View360 direct chat.
 library;
 
+export 'src/view360_config.dart';
+export 'src/view360.dart';
 export 'src/api/api_service.dart';
 export 'src/model/chat_list_response.dart';
 export 'src/model/chat_response.dart';

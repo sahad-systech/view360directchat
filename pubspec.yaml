@@ -1,6 +1,6 @@
 name: view360directchat
 description: "A Flutter package providing real-time socket connections, HTTP APIs, LiveKit audio/video calling, and push messaging for implementing the View360 chat feature."
-version: 2.0.1
+version: 2.1.0
 homepage: https://view360.cx
 repository: https://github.com/sahad-systech/view360directchat.git
 

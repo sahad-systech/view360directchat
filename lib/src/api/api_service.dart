@@ -13,6 +13,7 @@ import '../model/chat_response.dart';
 import '../model/sending_response.dart';
 import '../model/storage_pre_model.dart';
 import '../socket/socket_managet.dart';
+import '../view360.dart';
 
 /// Service responsible for managing View360 chat HTTP API interactions,
 /// session registration, message delivery, history retrieval, and session termination.
@@ -44,13 +45,21 @@ class ChatService {
   /// [fetchFCMToken] when true will automatically request and register the FCM token.
   Future<ChateRegisterResponse> createChatSession({
     required String chatContent,
-    required String customerName,
+    String? customerName,
     String? customerEmail,
     String? customerPhone,
     String? languageInstance,
     bool? fetchFCMToken = false,
   }) async {
-    if (customerEmail == null && customerPhone == null) {
+    final effectiveCustomerName = customerName ?? (View360.isInitialized ? View360.config.customer?.name : null);
+    final effectiveCustomerEmail = customerEmail ?? (View360.isInitialized ? View360.config.customer?.email : null);
+    final effectiveCustomerPhone = customerPhone ?? (View360.isInitialized ? View360.config.customer?.phone : null);
+
+    if (effectiveCustomerName == null || effectiveCustomerName.isEmpty) {
+      throw Exception('Customer name is required');
+    }
+
+    if (effectiveCustomerEmail == null && effectiveCustomerPhone == null) {
       throw ChateRegisterResponse.error(
         'Customer email or phone is required please update your profile',
       );
@@ -66,15 +75,15 @@ class ChatService {
         ..headers['Content-Type'] = 'application/json';
 
       final body = {
-        'ChatId': customerEmail ?? customerPhone!,
+        'ChatId': effectiveCustomerEmail ?? effectiveCustomerPhone!,
         'appId': appId,
         'channel': 'MobileAPP',
         'clientId': '',
-        if (customerEmail != null && customerEmail.isNotEmpty)
-          'email': customerEmail,
-        if (customerPhone != null && customerPhone.isNotEmpty)
-          'mobile': customerPhone,
-        'name': customerName,
+        if (effectiveCustomerEmail != null && effectiveCustomerEmail.isNotEmpty)
+          'email': effectiveCustomerEmail,
+        if (effectiveCustomerPhone != null && effectiveCustomerPhone.isNotEmpty)
+          'mobile': effectiveCustomerPhone,
+        'name': effectiveCustomerName,
         'messages': [
           {
             'text': {'content': chatContent, 'content_id': 'customer'},
@@ -94,9 +103,9 @@ class ChatService {
         await View360ChatPrefs.saveString(
           isInQueueValue: isQueue,
           customerIdKeyValue: customerId ?? '',
-          customerNameKeyValue: customerName,
-          customerEmailKeyValue: customerEmail,
-          customerPhoneKeyValue: customerPhone,
+          customerNameKeyValue: effectiveCustomerName,
+          customerEmailKeyValue: effectiveCustomerEmail,
+          customerPhoneKeyValue: effectiveCustomerPhone,
         );
         if (fetchFCMToken ?? false) {
           getFCMToken(
@@ -266,9 +275,9 @@ class ChatService {
           .timeout(const Duration(seconds: 20)); // Optional: set timeout
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return ChatListResponse.fromJson2(data);
+        return ChatListResponse.fromJson(data);
       } else {
-        return ChatListResponse.error2(
+        return ChatListResponse.error(
           'HTTP error - status code ${response.statusCode}',
         );
       }

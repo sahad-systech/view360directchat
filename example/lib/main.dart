@@ -76,15 +76,28 @@ class _HomeScreenState extends State<HomeScreen> {
     _addLog('Creating chat session...');
 
     try {
-      final chatService = ChatService(baseUrl: baseUrl, appId: appId);
+      await View360.init(
+        View360Config(
+          baseUrl: baseUrl,
+          appId: appId,
+          customer: View360Customer(
+            name: name,
+            email: email.isNotEmpty ? email : null,
+            phone: phone.isNotEmpty ? phone : null,
+          ),
+          call: const View360CallSettings(
+            tokenUrl: 'https://ai.view360.cx/api/token',
+            sdkId: 'DEMO_SDK_ID',
+            apiKey: 'DEMO_API_KEY',
+            livekitUrl: 'wss://livekit.view360.cx',
+          ),
+        ),
+      );
 
-      final response = await chatService.createChatSession(
+      final response = await View360.chat.createChatSession(
         chatContent: message.isNotEmpty
             ? message
             : 'Hello from View360 Flutter Example!',
-        customerName: name,
-        customerEmail: email.isNotEmpty ? email : null,
-        customerPhone: phone.isNotEmpty ? phone : null,
       );
 
       if (response.success) {
@@ -103,37 +116,42 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _openVoiceCall() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => View360CallPage(
-          config: const View360CallConfig(
+  void _openVoiceCall() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final phone = _phoneController.text.trim();
+
+    if (!View360.isInitialized) {
+      await View360.init(
+        View360Config(
+          baseUrl: _baseUrlController.text.trim(),
+          appId: _appIdController.text.trim(),
+          customer: View360Customer(
+            name: name.isNotEmpty ? name : 'John Doe',
+            email: email.isNotEmpty ? email : 'john.doe@example.com',
+            phone: phone.isNotEmpty ? phone : '+1234567890',
+          ),
+          call: const View360CallSettings(
             tokenUrl: 'https://ai.view360.cx/api/token',
             sdkId: 'DEMO_SDK_ID',
             apiKey: 'DEMO_API_KEY',
             livekitUrl: 'wss://livekit.view360.cx',
           ),
-          userName: _nameController.text.trim().isNotEmpty
-              ? _nameController.text.trim()
-              : 'John Doe',
-          userPhone: _phoneController.text.trim().isNotEmpty
-              ? _phoneController.text.trim()
-              : '+1234567890',
-          userEmail: _emailController.text.trim().isNotEmpty
-              ? _emailController.text.trim()
-              : 'john.doe@example.com',
-          theme: const View360CallTheme(primaryColor: Color(0xFF5D59E1)),
-          strings: const View360CallStrings(
-            agentName: 'View360 Voice Assistant',
-          ),
-          onCallStarted: () => _addLog('AI Voice Call connected'),
-          onCallEnded: () => _addLog('AI Voice Call ended'),
-          onRatingSubmitted: (rating, feedback) {
-            _addLog('Rating submitted: $rating stars, feedback: $feedback');
-          },
-          onError: (error) => _addLog('Call error: $error'),
         ),
-      ),
+      );
+    }
+
+    if (!mounted) return;
+
+    View360.openCall(
+      context,
+      theme: const View360CallTheme(primaryColor: Color(0xFF5D59E1)),
+      onCallStarted: () => _addLog('AI Voice Call connected'),
+      onCallEnded: () => _addLog('AI Voice Call ended'),
+      onRatingSubmitted: (rating, feedback) {
+        _addLog('Rating submitted: $rating stars, feedback: $feedback');
+      },
+      onError: (error) => _addLog('Call error: $error'),
     );
   }
 

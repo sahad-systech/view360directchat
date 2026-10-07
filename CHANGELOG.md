@@ -1,3 +1,6 @@
+## 2.1.0
+- Added `View360.init` single entry point and global configuration. Fully backward compatible.
+
 ## 2.0.1
 
 * update api response.

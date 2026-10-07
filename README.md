@@ -4,8 +4,27 @@ A comprehensive Flutter package for integrating **View360's real-time chat & AI 
 
 `view360directchat` enables real-time customer support chat, REST-based messaging API, file attachment uploads, automatic push notifications via Firebase Cloud Messaging (FCM), local session persistence, and an interactive **LiveKit-powered AI Voice Call page**.
 
+## Quick Start
+
+```dart
+import 'package:view360directchat/view360directchat.dart';
+
+// 1. Initialize once
+await View360.init(View360Config(
+  baseUrl: 'https://chat.view360.cx',
+  appId: 'YOUR_APP_ID',
+  customer: const View360Customer(name: 'John Doe'), // optional default
+));
+
+// 2. Chat or call without repeating configuration
+await View360.chat.createChatSession(chatContent: 'Hello!');
+// or
+View360.openCall(context); // provided call settings are configured
+```
+
 ## Key Features
 
+- **Single Entry Point (`View360`)** — Initialize once and easily access chat and calls.
 - **Real-time Socket Connection (`SocketManager`)** — Instant bidirectional web-socket communication using `socket_io_client`.
 - **Chat Session Management (`ChatService`)** — Easily register chat sessions, send text messages, handle queuing, and close sessions.
 - **Multipart Attachment Uploads** — Send images (`.jpg`, `.png`, `.gif`), documents (`.pdf`, `.xlsx`, `.csv`), and videos (`.mp4`).
@@ -14,7 +33,7 @@ A comprehensive Flutter package for integrating **View360's real-time chat & AI 
 - **Persistent Local Storage (`View360ChatPrefs`)** — Automatically saves customer IDs, chat IDs, and queue statuses using `shared_preferences`.
 - **AI Voice Calling (`View360CallPage`)** — Complete pre-built UI and service (`LivekitCallService`) for real-time voice conversations powered by LiveKit WebRTC, live transcription streaming, and post-call feedback ratings.
 
-## Usage Guide
+## Advanced / Manual Setup
 
 ### 1. Initialize Real-Time Socket Manager
 

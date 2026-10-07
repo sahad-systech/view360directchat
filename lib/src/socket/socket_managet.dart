@@ -59,7 +59,7 @@ class SocketManager {
   /// [onRemovedByInActivity] handles chat removed events.
   /// [onConnected] callback triggered when the socket connection is successfully established.
   void connect({
-    required String baseUrl,
+    String? baseUrl,
     OnMessageReceived? onMessage,
     OnAgentJoin? onAgentJoin,
     OnAgentClose? onAgentClose,
@@ -72,9 +72,15 @@ class SocketManager {
     onAgentClose = onAgentClose;
     onChatTransfer = onChatTransfer;
     onRemovedByInActivity = onRemovedByInActivity;
+    
+    final effectiveBaseUrl = baseUrl ?? (View360.isInitialized ? View360.config.baseUrl : null);
+    if (effectiveBaseUrl == null || effectiveBaseUrl.isEmpty) {
+      throw ArgumentError('baseUrl is required or View360 must be initialized');
+    }
+
     // ✅ Initialize the socket first
     _socket = io.io(
-      baseUrl,
+      effectiveBaseUrl,
       io.OptionBuilder()
           .setTransports(['websocket'])
           .setPath('/chatsocket.io')
@@ -148,7 +154,11 @@ class SocketManager {
 
   /// Disconnects the socket and removes all event listeners.
   void disconnect() {
-    _socket.clearListeners();
-    _socket.disconnect();
+    try {
+      _socket.clearListeners();
+      _socket.disconnect();
+    } catch (_) {
+      // Ignore LateInitializationError if _socket was never connected
+    }
   }
 }

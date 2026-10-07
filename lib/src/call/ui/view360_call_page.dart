@@ -6,6 +6,7 @@ import '../service/livekit_call_service.dart';
 import 'widgets/connected_ui.dart';
 import 'widgets/disconnected_ui.dart';
 import 'widgets/ended_ui.dart';
+import '../../view360.dart';
 
 /// A full-screen AI Voice Call widget powered by LiveKit WebRTC.
 ///
@@ -13,16 +14,16 @@ import 'widgets/ended_ui.dart';
 /// microphone/speaker toggling, and post-call feedback ratings.
 class View360CallPage extends StatefulWidget {
   /// LiveKit connection configuration (endpoints and keys).
-  final View360CallConfig config;
+  final View360CallConfig? config;
 
   /// User's full name.
-  final String userName;
+  final String? userName;
 
   /// User's phone number.
-  final String userPhone;
+  final String? userPhone;
 
   /// User's email address.
-  final String userEmail;
+  final String? userEmail;
 
   /// Optional UI theme colors customization.
   final View360CallTheme? theme;
@@ -45,10 +46,10 @@ class View360CallPage extends StatefulWidget {
   /// Creates a [View360CallPage] widget.
   const View360CallPage({
     super.key,
-    required this.config,
-    required this.userName,
-    required this.userPhone,
-    required this.userEmail,
+    this.config,
+    this.userName,
+    this.userPhone,
+    this.userEmail,
     this.theme,
     this.strings,
     this.onCallStarted,
@@ -69,12 +70,22 @@ class _View360CallPageState extends State<View360CallPage> {
   @override
   void initState() {
     super.initState();
+    
+    final effectiveConfig = widget.config ?? (View360.isInitialized ? View360.config.call : null);
+    if (effectiveConfig == null) {
+      throw StateError('View360CallConfig is required or View360 must be initialized with call settings');
+    }
+    
+    final effectiveUserName = widget.userName ?? (View360.isInitialized ? View360.config.customer?.name : null);
+    final effectiveUserPhone = widget.userPhone ?? (View360.isInitialized ? View360.config.customer?.phone : null);
+    final effectiveUserEmail = widget.userEmail ?? (View360.isInitialized ? View360.config.customer?.email : null);
+
     _service =
         LivekitCallService(
-            config: widget.config,
-            userName: widget.userName,
-            userPhone: widget.userPhone,
-            userEmail: widget.userEmail,
+            config: effectiveConfig,
+            userName: effectiveUserName ?? '',
+            userPhone: effectiveUserPhone ?? '',
+            userEmail: effectiveUserEmail ?? '',
           )
           ..onCallStarted = widget.onCallStarted
           ..onCallEnded = widget.onCallEnded
