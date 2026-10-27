@@ -86,10 +86,18 @@ class ChatMessage {
 
   /// Constructs a [ChatMessage] from decoded JSON data.
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
+    final rawFiles = json['file_path'];
+    final List<String> files;
+    if (rawFiles is List) {
+      files = rawFiles.whereType<String>().toList();
+    } else {
+      files = const [];
+    }
+
     return ChatMessage(
       content: json['content'] ?? '',
       senderType: json['senderType'] ?? '',
-      files: (json['file_path'] as List<dynamic>).cast<String>(),
+      files: files,
       createdAt: json['createdAt'] ?? '',
       id: json['id'] ?? 0,
     );
