@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -24,8 +25,11 @@ class ChatService {
   /// The unique application identifier assigned by View360.
   final String appId;
 
-  /// Creates an instance of [ChatService] with the specified [baseUrl] and [appId].
-  ChatService({required this.baseUrl, required this.appId});
+  /// Optional HTTP client for testing and custom network configuration.
+  final http.Client? client;
+
+  /// Creates an instance of [ChatService] with the specified [baseUrl], [appId], and optional [client].
+  ChatService({required this.baseUrl, required this.appId, this.client});
 
   /// Emits socket events to set up customer session and join the chat room.
   Future<void> socketEmitIsWorking(String customerId) async {
@@ -51,9 +55,15 @@ class ChatService {
     String? languageInstance,
     bool? fetchFCMToken = false,
   }) async {
-    final effectiveCustomerName = customerName ?? (View360.isInitialized ? View360.config.customer?.name : null);
-    final effectiveCustomerEmail = customerEmail ?? (View360.isInitialized ? View360.config.customer?.email : null);
-    final effectiveCustomerPhone = customerPhone ?? (View360.isInitialized ? View360.config.customer?.phone : null);
+    final effectiveCustomerName =
+        customerName ??
+        (View360.isInitialized ? View360.config.customer?.name : null);
+    final effectiveCustomerEmail =
+        customerEmail ??
+        (View360.isInitialized ? View360.config.customer?.email : null);
+    final effectiveCustomerPhone =
+        customerPhone ??
+        (View360.isInitialized ? View360.config.customer?.phone : null);
 
     if (effectiveCustomerName == null || effectiveCustomerName.isEmpty) {
       throw Exception('Customer name is required');
@@ -229,12 +239,23 @@ class ChatService {
     };
 
     try {
-      final response = await http
-          .get(url, headers: headers)
-          .timeout(const Duration(seconds: 20)); // Optional: set timeout
+      final clientToUse = client;
+      final response = clientToUse != null
+          ? await clientToUse
+                .get(url, headers: headers)
+                .timeout(const Duration(seconds: 20))
+          : await http
+                .get(url, headers: headers)
+                .timeout(const Duration(seconds: 20)); // Optional: set timeout
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return ChatListResponse.fromJson(data);
+        final dynamic data = jsonDecode(response.body);
+        if (data is Map<String, dynamic>) {
+          return ChatListResponse.fromJson(data);
+        } else {
+          return ChatListResponse.error(
+            'Invalid response format: expected a JSON map with messagesInChat',
+          );
+        }
       } else {
         return ChatListResponse.error(
           'HTTP error - status code ${response.statusCode}',
@@ -259,7 +280,10 @@ class ChatService {
         await View360ChatPrefs.getString();
     final String customerId = localstorage.customerId;
     final String channelChatId =
-        localstorage.customerEmail ?? localstorage.customerPhone!;
+        (localstorage.customerEmail != null &&
+            localstorage.customerEmail!.isNotEmpty)
+        ? localstorage.customerEmail!
+        : (localstorage.customerPhone ?? '');
     final Uri url = Uri.parse(
       '$baseUrl/convapi/customer/message/chatQueueMessages?customerId=$customerId&channelChatId=$channelChatId',
     );
@@ -270,14 +294,30 @@ class ChatService {
     };
 
     try {
-      final response = await http
-          .get(url, headers: headers)
-          .timeout(const Duration(seconds: 20)); // Optional: set timeout
+      final clientToUse = client;
+      final response = clientToUse != null
+          ? await clientToUse
+                .get(url, headers: headers)
+                .timeout(const Duration(seconds: 20))
+          : await http
+                .get(url, headers: headers)
+                .timeout(const Duration(seconds: 20)); // Optional: set timeout
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return ChatListResponse.fromJson(data);
+        final dynamic data = jsonDecode(response.body);
+        log("response from queue message:${response.body.toString()}");
+        if (data is List) {
+          return ChatListResponse.fromJson2(data);
+        } else if (data is Map && data['messagesInChat'] is List) {
+          return ChatListResponse.fromJson2(data['messagesInChat'] as List);
+        } else if (data is Map && data['messages'] is List) {
+          return ChatListResponse.fromJson2(data['messages'] as List);
+        } else {
+          return ChatListResponse.error2(
+            'Invalid response format: expected a JSON list of queue messages',
+          );
+        }
       } else {
-        return ChatListResponse.error(
+        return ChatListResponse.error2(
           'HTTP error - status code ${response.statusCode}',
         );
       }

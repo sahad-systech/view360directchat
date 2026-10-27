@@ -22,20 +22,32 @@ class ChatListResponse {
 
   /// Constructs a [ChatListResponse] from decoded JSON server response.
   factory ChatListResponse.fromJson(Map<String, dynamic> json) {
+    final rawMessages = json['messagesInChat'];
+    final List<ChatMessage> messages;
+    if (rawMessages is List) {
+      messages = rawMessages
+          .whereType<Map>()
+          .map((e) => ChatMessage.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } else {
+      messages = const [];
+    }
     return ChatListResponse(
       success: true,
       isInQueue: false,
-      messages: (json['messagesInChat'] as List<dynamic>)
-          .map((e) => ChatMessage.fromJson(e))
-          .toList(),
+      messages: messages,
     );
   }
 
+  /// Constructs a [ChatListResponse] for queue messages from a decoded JSON list.
   factory ChatListResponse.fromJson2(List<dynamic> jsonList) {
     return ChatListResponse(
       success: true,
       isInQueue: true,
-      messages: jsonList.map((e) => ChatMessage.fromJson(e)).toList(),
+      messages: jsonList
+          .whereType<Map>()
+          .map((e) => ChatMessage.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
     );
   }
 
