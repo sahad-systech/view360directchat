@@ -94,10 +94,8 @@ final response = await chatService.createChatSession(
 );
 
 if (response.success) {
-  if (response.isInQueue) {
+  if (response.isInQueue == true) {
     print('Customer placed in queue. Waiting for an available agent.');
-  } else if (response.isOutOfOfficeTime) {
-    print('Session created, but currently out of office hours.');
   } else {
     print('Chat session established!');
   }

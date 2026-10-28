@@ -10,8 +10,11 @@ class ChateRegisterResponse {
   final bool? isInQueue;
 
   /// Creates a [ChateRegisterResponse] instance.
-  const ChateRegisterResponse(
-      {required this.success, this.message, this.isInQueue});
+  const ChateRegisterResponse({
+    required this.success,
+    this.message,
+    this.isInQueue,
+  });
 
   /// Constructs a [ChateRegisterResponse] from decoded JSON data.
   factory ChateRegisterResponse.fromJson(Map<String, dynamic> json) {
@@ -24,10 +27,18 @@ class ChateRegisterResponse {
       );
     }
 
-    return const ChateRegisterResponse(success: true, isInQueue: false);
+    return ChateRegisterResponse(
+      success: true,
+      message: json['message'],
+      isInQueue: false,
+    );
   }
 
   /// Constructs an error [ChateRegisterResponse] with the specified [errorMessage].
   factory ChateRegisterResponse.error(String errorMessage) =>
-      ChateRegisterResponse(success: false, message: errorMessage);
+      ChateRegisterResponse(
+        success: false,
+        message: errorMessage,
+        isInQueue: false,
+      );
 }
