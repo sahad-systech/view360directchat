@@ -200,6 +200,7 @@ class ChatService {
             userId: customerId.toString(),
             baseUrl: baseUrl,
             appId: appId,
+            chatService: this,
           );
         }
 

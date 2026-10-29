@@ -29,17 +29,44 @@ String getMimeType(String path) {
 }
 
 /// Fetches the Firebase Cloud Messaging device token and syncs it with View360 servers.
+///
+/// Handles null or empty tokens safely and skips backend registration when
+/// a token is unavailable.
+///
+/// [tokenProvider] is an optional callback to provide the FCM token, useful for
+/// testing or custom token management. If omitted, defaults to [FirebaseMessaging.instance.getToken].
+/// [chatService] is an optional [ChatService] instance, primarily for testing.
+/// [messaging] is an optional [FirebaseMessaging] instance for dependency injection.
 Future<void> getFCMToken({
   required String userId,
   required String baseUrl,
   required String appId,
+  Future<String?> Function()? tokenProvider,
+  ChatService? chatService,
+  FirebaseMessaging? messaging,
 }) async {
   try {
-    final token = await FirebaseMessaging.instance.getToken();
-    await ChatService(
-      baseUrl: baseUrl,
-      appId: appId,
-    ).notificationToken(token: token!, userId: userId);
+    final String? token;
+    if (tokenProvider != null) {
+      token = await tokenProvider();
+    } else if (messaging != null) {
+      token = await messaging.getToken();
+    } else {
+      token = await FirebaseMessaging.instance.getToken();
+    }
+
+    if (token == null || token.trim().isEmpty) {
+      debugPrint('FCM token is null or empty, skipping token registration');
+      return;
+    }
+
+    final service = chatService ??
+        ChatService(
+          baseUrl: baseUrl,
+          appId: appId,
+        );
+
+    await service.notificationToken(token: token.trim(), userId: userId);
   } catch (e) {
     debugPrint(e.toString());
   }
