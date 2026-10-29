@@ -152,6 +152,16 @@ class ChatService {
     List<String>? filePath,
     required String chatContent,
   }) async {
+    final View360ChatPrefsModel localstorage =
+        await View360ChatPrefs.getString();
+    final String? chatId = localstorage.chatId;
+
+    if (chatId == null || chatId.trim().isEmpty) {
+      return ChatSentResponse.error(
+        'No active chat session found. Please wait for an agent to be assigned.',
+      );
+    }
+
     final String updatedBaseUrl = baseUrl.replaceAll('https://', '');
     const allowedExtensions = [
       '.jpg',
@@ -166,14 +176,12 @@ class ChatService {
 
     try {
       final uri = Uri.https(updatedBaseUrl, "/convapi/customer/message");
-      final View360ChatPrefsModel localstorage =
-          await View360ChatPrefs.getString();
       final request = http.MultipartRequest('POST', uri)
         ..headers['app-id'] = appId
         ..headers['Origin'] = 'https://view360.cx'
         ..headers['Referer'] = 'https://view360.cx/';
       request.fields.addAll({
-        'chat_id': localstorage.chatId!,
+        'chat_id': chatId,
         'content': chatContent,
         'customerId': localstorage.customerId,
       });
@@ -198,7 +206,10 @@ class ChatService {
           );
         }
       }
-      final response = await request.send();
+      final clientToUse = client;
+      final response = clientToUse != null
+          ? await clientToUse.send(request)
+          : await request.send();
       final responseString = await response.stream.bytesToString();
       if (response.statusCode == 200 || response.statusCode == 304) {
         final json = jsonDecode(responseString);
@@ -365,9 +376,17 @@ class ChatService {
   /// Closes the active chat session on the server and clears local preferences.
   Future<void> closeChat() async {
     final localstorage = await View360ChatPrefs.getString();
-    try {
-      final String chatId = localstorage.chatId!;
+    final String? chatId = localstorage.chatId;
 
+    if (chatId == null || chatId.trim().isEmpty) {
+      debugPrint(
+        'No active chat ID found to close on server. Clearing local session.',
+      );
+      await View360ChatPrefs.remove();
+      return;
+    }
+
+    try {
       var headers = {
         'app-id': appId,
         'origin': 'https://view360.cx',
@@ -381,7 +400,11 @@ class ChatService {
       final dynamic parsedChatId = int.tryParse(chatId) ?? chatId;
       request.body = jsonEncode({"chatId": parsedChatId});
       request.headers.addAll(headers);
-      http.StreamedResponse response = await request.send();
+
+      final clientToUse = client;
+      final http.StreamedResponse response = clientToUse != null
+          ? await clientToUse.send(request)
+          : await request.send();
       if (response.statusCode == 200) {
         final responseString = await response.stream.bytesToString();
         debugPrint("close response $responseString");
