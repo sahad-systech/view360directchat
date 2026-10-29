@@ -31,6 +31,83 @@ class ChatService {
   /// Creates an instance of [ChatService] with the specified [baseUrl], [appId], and optional [client].
   ChatService({required this.baseUrl, required this.appId, this.client});
 
+  /// Resolves an endpoint path against [baseUrl] and returns the constructed [Uri].
+  ///
+  /// Preserves schemes (HTTP and HTTPS), host, port, existing base paths,
+  /// and merges any existing query parameters from [baseUrl] with [endpointPath]
+  /// and [queryParameters].
+  ///
+  /// Throws a [FormatException] if [baseUrl] or [endpointPath] is invalid,
+  /// or if [baseUrl] does not use the `http` or `https` scheme with a non-empty host.
+  Uri buildUri(String endpointPath, [Map<String, dynamic>? queryParameters]) {
+    return resolveUrl(baseUrl, endpointPath, queryParameters);
+  }
+
+  /// Normalizes and constructs a request URL from [baseUrl] and [endpointPath].
+  ///
+  /// Preserves schemes (HTTP and HTTPS), host, port, existing base paths,
+  /// and merges any existing query parameters from [baseUrl] with [endpointPath]
+  /// and [queryParameters].
+  ///
+  /// Throws a [FormatException] if [baseUrl] or [endpointPath] is invalid,
+  /// or if [baseUrl] does not use the `http` or `https` scheme with a non-empty host.
+  static Uri resolveUrl(
+    String baseUrl,
+    String endpointPath, [
+    Map<String, dynamic>? queryParameters,
+  ]) {
+    final trimmedBase = baseUrl.trim();
+    if (trimmedBase.isEmpty) {
+      throw const FormatException('baseUrl cannot be empty');
+    }
+
+    final baseUri = Uri.tryParse(trimmedBase);
+    if (baseUri == null ||
+        !baseUri.hasScheme ||
+        (baseUri.scheme.toLowerCase() != 'http' &&
+            baseUri.scheme.toLowerCase() != 'https') ||
+        !baseUri.hasAuthority ||
+        baseUri.host.isEmpty) {
+      throw FormatException(
+        'Invalid baseUrl: "$baseUrl". Must be a valid HTTP or HTTPS URL with a non-empty host.',
+      );
+    }
+
+    final trimmedEndpoint = endpointPath.trim();
+    final endpointUri = Uri.parse(trimmedEndpoint);
+
+    final combinedSegments = <String>[
+      ...baseUri.pathSegments.where((s) => s.isNotEmpty),
+      ...endpointUri.pathSegments.where((s) => s.isNotEmpty),
+    ];
+
+    if (endpointUri.path.endsWith('/') && combinedSegments.isNotEmpty) {
+      combinedSegments.add('');
+    }
+
+    final Map<String, dynamic> mergedQuery = {
+      ...baseUri.queryParameters,
+      ...endpointUri.queryParameters,
+    };
+
+    if (queryParameters != null) {
+      for (final entry in queryParameters.entries) {
+        final val = entry.value;
+        if (val is Iterable) {
+          mergedQuery[entry.key] = val.map((v) => v.toString()).toList();
+        } else if (val != null) {
+          mergedQuery[entry.key] = val.toString();
+        }
+      }
+    }
+
+    return baseUri.replace(
+      scheme: baseUri.scheme.toLowerCase(),
+      pathSegments: combinedSegments,
+      queryParameters: mergedQuery.isEmpty ? null : mergedQuery,
+    );
+  }
+
   /// Emits socket events to set up customer session and join the chat room.
   Future<void> socketEmitIsWorking(String customerId) async {
     Future.delayed(const Duration(seconds: 1), () {
@@ -74,10 +151,8 @@ class ChatService {
         'Customer email or phone is required please update your profile',
       );
     }
-    final String updatedBaseUrl = baseUrl.replaceAll('https://', '');
+    final uri = buildUri('/convapi/chat-integration/chat');
     try {
-      final uri = Uri.https(updatedBaseUrl, "/convapi/chat-integration/chat");
-
       final request = http.Request('POST', uri)
         ..headers['app-id'] = appId
         ..headers['Origin'] = 'https://view360.cx'
@@ -102,7 +177,10 @@ class ChatService {
       };
 
       request.body = jsonEncode(body);
-      final response = await request.send();
+      final clientToUse = client;
+      final response = clientToUse != null
+          ? await clientToUse.send(request)
+          : await request.send();
       final responseString = await response.stream.bytesToString();
 
       if (response.statusCode == 200 || response.statusCode == 304) {
@@ -162,7 +240,6 @@ class ChatService {
       );
     }
 
-    final String updatedBaseUrl = baseUrl.replaceAll('https://', '');
     const allowedExtensions = [
       '.jpg',
       '.jpeg',
@@ -175,7 +252,7 @@ class ChatService {
     ];
 
     try {
-      final uri = Uri.https(updatedBaseUrl, "/convapi/customer/message");
+      final uri = buildUri('/convapi/customer/message');
       final request = http.MultipartRequest('POST', uri)
         ..headers['app-id'] = appId
         ..headers['Origin'] = 'https://view360.cx'
@@ -240,9 +317,9 @@ class ChatService {
     if (chatId == null || chatId.isEmpty) {
       return fetchMessagesWhenChatInQueue();
     }
-    final Uri url = Uri.parse(
-      '$baseUrl/convapi/customer/message/$chatId?web=true',
-    );
+    final Uri url = buildUri('/convapi/customer/message/$chatId', {
+      'web': 'true',
+    });
     final headers = {
       'app-id': appId,
       'Origin': 'https://view360.cx',
@@ -295,9 +372,10 @@ class ChatService {
             localstorage.customerEmail!.isNotEmpty)
         ? localstorage.customerEmail!
         : (localstorage.customerPhone ?? '');
-    final Uri url = Uri.parse(
-      '$baseUrl/convapi/customer/message/chatQueueMessages?customerId=$customerId&channelChatId=$channelChatId',
-    );
+    final Uri url = buildUri('/convapi/customer/message/chatQueueMessages', {
+      'customerId': customerId,
+      'channelChatId': channelChatId,
+    });
     final headers = {
       'app-id': appId,
       'Origin': 'https://view360.cx',
@@ -356,13 +434,14 @@ class ChatService {
         'Origin': 'https://view360.cx',
         'Referer': 'https://view360.cx/',
       };
-      var request = http.Request(
-        'POST',
-        Uri.parse('$baseUrl/widgetapi/messages/updateFCM'),
-      );
+      final uri = buildUri('/widgetapi/messages/updateFCM');
+      final request = http.Request('POST', uri);
       request.body = jsonEncode({"customerId": userId, "fcmToken": token});
       request.headers.addAll(headers);
-      http.StreamedResponse response = await request.send();
+      final clientToUse = client;
+      final http.StreamedResponse response = clientToUse != null
+          ? await clientToUse.send(request)
+          : await request.send();
       if (response.statusCode == 200) {
         debugPrint("FCM token updated successfully");
       } else {
@@ -393,10 +472,8 @@ class ChatService {
         'referer': 'https://view360.cx/',
         'Content-Type': 'application/json',
       };
-      var request = http.Request(
-        'POST',
-        Uri.parse('$baseUrl/convapi/customer/chat/closeChat'),
-      );
+      final uri = buildUri('/convapi/customer/chat/closeChat');
+      final request = http.Request('POST', uri);
       final dynamic parsedChatId = int.tryParse(chatId) ?? chatId;
       request.body = jsonEncode({"chatId": parsedChatId});
       request.headers.addAll(headers);
