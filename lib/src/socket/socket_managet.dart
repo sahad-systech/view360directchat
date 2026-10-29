@@ -72,8 +72,9 @@ class SocketManager {
     onAgentClose = onAgentClose;
     onChatTransfer = onChatTransfer;
     onRemovedByInActivity = onRemovedByInActivity;
-    
-    final effectiveBaseUrl = baseUrl ?? (View360.isInitialized ? View360.config.baseUrl : null);
+
+    final effectiveBaseUrl =
+        baseUrl ?? (View360.isInitialized ? View360.config.baseUrl : null);
     if (effectiveBaseUrl == null || effectiveBaseUrl.isEmpty) {
       throw ArgumentError('baseUrl is required or View360 must be initialized');
     }

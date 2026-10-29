@@ -28,4 +28,3 @@ class View360CallConfig {
     this.notificationText = 'AI voice call is running in the background.',
   });
 }
-

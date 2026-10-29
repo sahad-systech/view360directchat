@@ -68,4 +68,3 @@ class View360CallStrings {
     this.agent = 'AGENT',
   });
 }
-

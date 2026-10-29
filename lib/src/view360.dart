@@ -25,13 +25,13 @@ abstract final class View360 {
   static ChatService? _chatService;
 
   /// Initializes the global View360 configuration.
-  /// 
+  ///
   /// This validates the config, stores it, and restores any active session data.
   /// It does not initiate network or socket connections.
   static Future<void> init(View360Config config) async {
     _config = config;
     _chatService = null;
-    
+
     // Ensure shared_preferences are ready and possibly restore session.
     await View360ChatPrefs.getString();
   }
@@ -40,7 +40,7 @@ abstract final class View360 {
   static bool get isInitialized => _config != null;
 
   /// Returns the current active [View360Config].
-  /// 
+  ///
   /// Throws a [StateError] if [View360.init] hasn't been called yet.
   static View360Config get config {
     if (_config == null) {
@@ -51,10 +51,7 @@ abstract final class View360 {
 
   /// Provides access to the [ChatService] instance configured with the global [View360Config].
   static ChatService get chat {
-    _chatService ??= ChatService(
-      baseUrl: config.baseUrl,
-      appId: config.appId,
-    );
+    _chatService ??= ChatService(baseUrl: config.baseUrl, appId: config.appId);
     return _chatService!;
   }
 
@@ -76,7 +73,7 @@ abstract final class View360 {
   }
 
   /// Pushes the [View360CallPage] onto the navigator using the configured customer and call settings.
-  /// 
+  ///
   /// Throws a [StateError] if call configuration is missing.
   static Future<void> openCall(
     BuildContext context, {
@@ -91,7 +88,7 @@ abstract final class View360 {
     if (callConfig == null) {
       throw StateError('View360Config.call is null. Cannot open call.');
     }
-    
+
     final customer = config.customer;
 
     await Navigator.of(context).push(

@@ -18,4 +18,3 @@ class View360CallTheme {
     this.darkBackground = const Color(0xFF263238), // blueGrey.shade900
   });
 }
-

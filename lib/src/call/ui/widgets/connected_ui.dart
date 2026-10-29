@@ -27,7 +27,6 @@ class ConnectedUI extends StatelessWidget {
     required this.scrollController,
   });
 
-
   @override
   Widget build(BuildContext context) {
     final transcripts = service.transcripts;

@@ -60,11 +60,7 @@ Future<void> getFCMToken({
       return;
     }
 
-    final service = chatService ??
-        ChatService(
-          baseUrl: baseUrl,
-          appId: appId,
-        );
+    final service = chatService ?? ChatService(baseUrl: baseUrl, appId: appId);
 
     await service.notificationToken(token: token.trim(), userId: userId);
   } catch (e) {

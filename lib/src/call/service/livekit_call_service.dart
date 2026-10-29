@@ -238,7 +238,6 @@ class LivekitCallService extends ChangeNotifier {
     _setStatus(CallStatus.initial);
   }
 
-
   // ─── Private ──────────────────────────────────────────────────────────────
 
   Future<FetchTokenModel> _fetchToken() async {

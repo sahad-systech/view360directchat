@@ -18,18 +18,10 @@ class View360Customer {
   final String? phone;
 
   /// Creates a [View360Customer] instance.
-  const View360Customer({
-    this.name,
-    this.email,
-    this.phone,
-  });
+  const View360Customer({this.name, this.email, this.phone});
 
   /// Creates a copy of this customer with the given fields replaced with the new values.
-  View360Customer copyWith({
-    String? name,
-    String? email,
-    String? phone,
-  }) {
+  View360Customer copyWith({String? name, String? email, String? phone}) {
     return View360Customer(
       name: name ?? this.name,
       email: email ?? this.email,
@@ -57,7 +49,7 @@ class View360Config {
   final bool enableLogging;
 
   /// Creates a [View360Config] instance.
-  /// 
+  ///
   /// Throws an [ArgumentError] if [appId] is empty, or if [baseUrl] is invalid.
   View360Config({
     required String baseUrl,

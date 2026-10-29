@@ -26,7 +26,6 @@ class EndedUI extends StatefulWidget {
     required this.room,
   });
 
-
   @override
   State<EndedUI> createState() => _EndedUIState();
 }

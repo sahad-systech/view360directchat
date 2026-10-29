@@ -25,7 +25,6 @@ class MessageBubble extends StatelessWidget {
     required this.strings,
   });
 
-
   @override
   Widget build(BuildContext context) {
     return Padding(

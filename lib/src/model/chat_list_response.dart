@@ -60,6 +60,8 @@ class ChatListResponse {
       error: errorMessage,
     );
   }
+
+  /// Constructs an error [ChatListResponse] for queue messages with the provided [errorMessage].
   factory ChatListResponse.error2(String errorMessage) {
     return ChatListResponse(
       success: false,

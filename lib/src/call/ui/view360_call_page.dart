@@ -58,7 +58,6 @@ class View360CallPage extends StatefulWidget {
     this.onError,
   });
 
-
   @override
   State<View360CallPage> createState() => _View360CallPageState();
 }
@@ -70,15 +69,24 @@ class _View360CallPageState extends State<View360CallPage> {
   @override
   void initState() {
     super.initState();
-    
-    final effectiveConfig = widget.config ?? (View360.isInitialized ? View360.config.call : null);
+
+    final effectiveConfig =
+        widget.config ?? (View360.isInitialized ? View360.config.call : null);
     if (effectiveConfig == null) {
-      throw StateError('View360CallConfig is required or View360 must be initialized with call settings');
+      throw StateError(
+        'View360CallConfig is required or View360 must be initialized with call settings',
+      );
     }
-    
-    final effectiveUserName = widget.userName ?? (View360.isInitialized ? View360.config.customer?.name : null);
-    final effectiveUserPhone = widget.userPhone ?? (View360.isInitialized ? View360.config.customer?.phone : null);
-    final effectiveUserEmail = widget.userEmail ?? (View360.isInitialized ? View360.config.customer?.email : null);
+
+    final effectiveUserName =
+        widget.userName ??
+        (View360.isInitialized ? View360.config.customer?.name : null);
+    final effectiveUserPhone =
+        widget.userPhone ??
+        (View360.isInitialized ? View360.config.customer?.phone : null);
+    final effectiveUserEmail =
+        widget.userEmail ??
+        (View360.isInitialized ? View360.config.customer?.email : null);
 
     _service =
         LivekitCallService(

@@ -30,7 +30,6 @@ class DisconnectedUI extends StatelessWidget {
     required this.isConnecting,
   });
 
-
   @override
   Widget build(BuildContext context) {
     return Padding(
