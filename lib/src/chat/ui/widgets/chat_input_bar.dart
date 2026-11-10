@@ -1,15 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../config/chat_strings.dart';
-import '../../config/chat_theme.dart';
 
 /// Floating pill-shaped text input bar for composing and sending chat messages.
 class ChatInputBar extends StatefulWidget {
-  /// Theme styling for the input bar.
-  final View360ChatTheme theme;
-
-  /// Localized labels and placeholder hints.
-  final View360ChatStrings strings;
-
   /// Callback fired when the user submits a message.
   final void Function(String text)? onSend;
 
@@ -17,13 +9,7 @@ class ChatInputBar extends StatefulWidget {
   final TextEditingController? controller;
 
   /// Creates a [ChatInputBar] widget.
-  const ChatInputBar({
-    super.key,
-    required this.theme,
-    required this.strings,
-    this.onSend,
-    this.controller,
-  });
+  const ChatInputBar({super.key, this.onSend, this.controller});
 
   @override
   State<ChatInputBar> createState() => _ChatInputBarState();
@@ -73,7 +59,7 @@ class _ChatInputBarState extends State<ChatInputBar> {
         padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 12.0),
         child: Container(
           decoration: BoxDecoration(
-            color: widget.theme.inputBackgroundColor,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(30.0),
             boxShadow: [
               BoxShadow(
@@ -96,15 +82,15 @@ class _ChatInputBarState extends State<ChatInputBar> {
                     fontSize: 15.0,
                     color: Color(0xFF1E293B),
                   ),
-                  decoration: InputDecoration(
-                    hintText: widget.strings.inputHint,
+                  decoration: const InputDecoration(
+                    hintText: 'Type a message...',
                     hintStyle: TextStyle(
-                      color: widget.theme.inputHintColor,
+                      color: Color(0xFF9CA3AF),
                       fontSize: 15.0,
                       fontWeight: FontWeight.w400,
                     ),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(
+                    contentPadding: EdgeInsets.symmetric(
                       horizontal: 20.0,
                       vertical: 14.0,
                     ),
@@ -118,10 +104,10 @@ class _ChatInputBarState extends State<ChatInputBar> {
                     Icons.send_rounded,
                     size: 22,
                     color: _hasText
-                        ? widget.theme.sendButtonActiveColor
-                        : widget.theme.sendButtonColor,
+                        ? const Color(0xFF4E37D3)
+                        : const Color(0xFF9CA3AF),
                   ),
-                  tooltip: widget.strings.sendTooltip,
+                  tooltip: 'Send',
                   onPressed: _hasText ? _handleSubmit : null,
                   splashRadius: 22,
                 ),

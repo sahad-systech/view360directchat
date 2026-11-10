@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../config/chat_strings.dart';
-import '../../config/chat_theme.dart';
 import '../../model/chat_ui_message.dart';
 
 /// Renders a single chat item, which can be an outgoing user bubble, an incoming
@@ -9,19 +7,8 @@ class ChatMessageBubble extends StatelessWidget {
   /// The chat message model to render.
   final View360ChatMessage message;
 
-  /// Theme styling for bubble colors and typography.
-  final View360ChatTheme theme;
-
-  /// Localized labels and strings.
-  final View360ChatStrings strings;
-
   /// Creates a [ChatMessageBubble] widget.
-  const ChatMessageBubble({
-    super.key,
-    required this.message,
-    required this.theme,
-    required this.strings,
-  });
+  const ChatMessageBubble({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -42,13 +29,13 @@ class ChatMessageBubble extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 12.0),
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         decoration: BoxDecoration(
-          color: theme.systemPillColor,
+          color: const Color(0xFFEEF2F6),
           borderRadius: BorderRadius.circular(20.0),
         ),
         child: Text(
           message.content,
-          style: TextStyle(
-            color: theme.systemPillTextColor,
+          style: const TextStyle(
+            color: Color(0xFF64748B),
             fontSize: 12.5,
             fontWeight: FontWeight.w500,
           ),
@@ -75,13 +62,13 @@ class ChatMessageBubble extends StatelessWidget {
                 vertical: 12.0,
               ),
               decoration: BoxDecoration(
-                color: theme.userBubbleColor,
+                color: const Color(0xFF4E37D3),
                 borderRadius: BorderRadius.circular(20.0),
               ),
               child: Text(
                 message.content,
-                style: TextStyle(
-                  color: theme.userTextColor,
+                style: const TextStyle(
+                  color: Colors.white,
                   fontSize: 14.5,
                   fontWeight: FontWeight.w400,
                   height: 1.35,
@@ -100,18 +87,18 @@ class ChatMessageBubble extends StatelessWidget {
                   children: [
                     Text(
                       message.time,
-                      style: TextStyle(
-                        color: theme.timestampColor,
+                      style: const TextStyle(
+                        color: Color(0xFF9CA3AF),
                         fontSize: 11.5,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
                     if (message.isSeen) ...[
                       const SizedBox(width: 4),
-                      Icon(
+                      const Icon(
                         Icons.done_all_rounded,
                         size: 15,
-                        color: theme.readReceiptColor,
+                        color: Color(0xFF4E37D3),
                       ),
                     ],
                   ],
@@ -131,13 +118,13 @@ class ChatMessageBubble extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             radius: 14,
-            backgroundColor: theme.agentBubbleAvatarColor,
+            backgroundColor: Color(0xFFEDE9FE),
             child: Text(
-              strings.agentInitial,
+              'A',
               style: TextStyle(
-                color: theme.agentBubbleAvatarTextColor,
+                color: Color(0xFF4E37D3),
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
@@ -155,7 +142,7 @@ class ChatMessageBubble extends StatelessWidget {
                   vertical: 14.0,
                 ),
                 decoration: BoxDecoration(
-                  color: theme.agentBubbleColor,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(18.0),
                   border: Border.all(color: const Color(0xFFF1F5F9)),
                   boxShadow: [
@@ -168,8 +155,8 @@ class ChatMessageBubble extends StatelessWidget {
                 ),
                 child: Text(
                   message.content,
-                  style: TextStyle(
-                    color: theme.agentTextColor,
+                  style: const TextStyle(
+                    color: Color(0xFF1E293B),
                     fontSize: 14.0,
                     height: 1.45,
                     fontWeight: FontWeight.w400,
@@ -185,8 +172,8 @@ class ChatMessageBubble extends StatelessWidget {
                   ),
                   child: Text(
                     message.time,
-                    style: TextStyle(
-                      color: theme.timestampColor,
+                    style: const TextStyle(
+                      color: Color(0xFF9CA3AF),
                       fontSize: 11.5,
                       fontWeight: FontWeight.w400,
                     ),

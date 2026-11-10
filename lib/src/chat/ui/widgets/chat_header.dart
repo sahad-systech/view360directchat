@@ -1,16 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../config/chat_strings.dart';
-import '../../config/chat_theme.dart';
 
 /// Top header bar for the View360 chat screen showing agent avatar, online status,
 /// title, subtitle, and navigation actions.
 class ChatHeader extends StatelessWidget {
-  /// Theme styling for the header.
-  final View360ChatTheme theme;
-
-  /// Localized labels for header elements.
-  final View360ChatStrings strings;
-
   /// Callback fired when the back button is tapped.
   final VoidCallback? onBackPressed;
 
@@ -23,8 +15,6 @@ class ChatHeader extends StatelessWidget {
   /// Creates a [ChatHeader] widget.
   const ChatHeader({
     super.key,
-    required this.theme,
-    required this.strings,
     this.onBackPressed,
     this.onClosePressed,
     this.isOnline = true,
@@ -35,7 +25,7 @@ class ChatHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
       decoration: BoxDecoration(
-        color: theme.headerBackgroundColor,
+        color: Colors.white,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -55,7 +45,7 @@ class ChatHeader extends StatelessWidget {
                   size: 20,
                   color: Color(0xFF111827),
                 ),
-                tooltip: strings.backTooltip,
+                tooltip: 'Back',
                 onPressed: onBackPressed,
                 splashRadius: 22,
                 padding: EdgeInsets.zero,
@@ -66,13 +56,13 @@ class ChatHeader extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 22,
-                  backgroundColor: theme.agentAvatarColor,
+                  backgroundColor: Color(0xFF3F4E65),
                   child: Text(
-                    strings.agentInitial,
+                    'A',
                     style: TextStyle(
-                      color: theme.agentAvatarTextColor,
+                      color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -86,12 +76,9 @@ class ChatHeader extends StatelessWidget {
                       width: 12,
                       height: 12,
                       decoration: BoxDecoration(
-                        color: theme.onlineBadgeColor,
+                        color: const Color(0xFF22C55E),
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: theme.headerBackgroundColor,
-                          width: 2.5,
-                        ),
+                        border: Border.all(color: Colors.white, width: 2.5),
                       ),
                     ),
                   ),
@@ -99,24 +86,24 @@ class ChatHeader extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             // Agent title and subtitle
-            Expanded(
+            const Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    strings.agentTitle,
-                    style: const TextStyle(
+                    'Agent',
+                    style: TextStyle(
                       color: Color(0xFF111827),
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       letterSpacing: -0.2,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
-                    strings.agentSubtitle,
-                    style: const TextStyle(
+                    'Active Support',
+                    style: TextStyle(
                       color: Color(0xFF6B7280),
                       fontSize: 12.5,
                       fontWeight: FontWeight.w400,
@@ -132,7 +119,7 @@ class ChatHeader extends StatelessWidget {
                   size: 24,
                   color: Color(0xFF1F2937),
                 ),
-                tooltip: strings.closeTooltip,
+                tooltip: 'Close',
                 onPressed: onClosePressed,
                 splashRadius: 22,
               ),
