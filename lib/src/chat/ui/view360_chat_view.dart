@@ -42,11 +42,14 @@ class View360ChatView extends StatefulWidget {
 class _View360ChatViewState extends State<View360ChatView> {
   final List<View360ChatMessage> _messages = [];
   final ScrollController _scrollController = ScrollController();
+  bool _isLoading = true;
+  bool _isChatIdNullOrEmpty = true;
 
   @override
   void initState() {
     super.initState();
     _initializeMessages();
+    _fetchMessages();
     _ensureSocketConnected();
   }
 
@@ -71,7 +74,7 @@ class _View360ChatViewState extends State<View360ChatView> {
           },
       onAgentJoin: ({required String name}) {
         if (mounted) {
-          setState(() {});
+          _fetchMessages();
         }
       },
       onAgentClose: () {
@@ -88,8 +91,56 @@ class _View360ChatViewState extends State<View360ChatView> {
   void _initializeMessages() {
     if (widget.initialMessages != null) {
       _messages.addAll(widget.initialMessages!);
-    } else {
-      _messages.addAll(View360ChatMessage.defaultSampleMessages);
+    }
+  }
+
+  Future<void> _fetchMessages() async {
+    final bool isNullOrEmpty = await View360ChatPrefs.isChatIdNullOrEmpty();
+    if (!mounted) return;
+
+    if (isNullOrEmpty) {
+      setState(() {
+        _isChatIdNullOrEmpty = true;
+        _isLoading = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _isChatIdNullOrEmpty = false;
+    });
+
+    if (!View360.isInitialized) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    try {
+      final response = await View360.chat.fetchMessages();
+      if (!mounted) return;
+      if (response.success) {
+        setState(() {
+          _messages.clear();
+          _messages.addAll(
+            response.messages.map(View360ChatMessage.fromChatMessage),
+          );
+          _isChatIdNullOrEmpty = false;
+          _isLoading = false;
+        });
+        _scrollToBottom();
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching messages: $e');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -153,18 +204,36 @@ class _View360ChatViewState extends State<View360ChatView> {
               onClosePressed: widget.onClosePressed,
             ),
           Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 12.0,
-              ),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                return ChatMessageBubble(message: message);
-              },
-            ),
+            child: _isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Color(0xFF4E37D3),
+                    ),
+                  )
+                : (_isChatIdNullOrEmpty && _messages.isEmpty)
+                ? const Center(
+                    child: Text(
+                      'chat is not created',
+                      style: TextStyle(
+                        color: Color(0xFF9CA3AF),
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 12.0,
+                    ),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      return ChatMessageBubble(message: message);
+                    },
+                  ),
           ),
           ChatInputBar(onSend: _handleSendMessage),
         ],
