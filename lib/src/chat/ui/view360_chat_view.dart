@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../local/local_storage.dart';
+import '../../socket/socket_managet.dart';
+import '../../view360.dart';
 import '../model/chat_ui_message.dart';
 import 'widgets/chat_header.dart';
 import 'widgets/chat_input_bar.dart';
@@ -44,6 +47,42 @@ class _View360ChatViewState extends State<View360ChatView> {
   void initState() {
     super.initState();
     _initializeMessages();
+    _ensureSocketConnected();
+  }
+
+  void _ensureSocketConnected() {
+    if (!View360.isInitialized) return;
+
+    SocketManager().connect(
+      onMessage:
+          ({
+            required String content,
+            List<String>? filePaths,
+            required dynamic response,
+            required String senderType,
+            required String createdAt,
+          }) {
+            if (mounted && content.isNotEmpty) {
+              setState(() {
+                _messages.add(View360ChatMessage.agent(content: content));
+              });
+              _scrollToBottom();
+            }
+          },
+      onAgentJoin: ({required String name}) {
+        if (mounted) {
+          setState(() {});
+        }
+      },
+      onAgentClose: () {
+        if (mounted) {
+          setState(() {});
+        }
+      },
+      onConnected: () {
+        debugPrint('View360ChatView: Socket connection established.');
+      },
+    );
   }
 
   void _initializeMessages() {
@@ -66,7 +105,7 @@ class _View360ChatViewState extends State<View360ChatView> {
     });
   }
 
-  void _handleSendMessage(String text) {
+  Future<void> _handleSendMessage(String text) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
 
@@ -81,6 +120,19 @@ class _View360ChatViewState extends State<View360ChatView> {
     _scrollToBottom();
 
     widget.onSendMessage?.call(trimmed);
+
+    try {
+      if (View360.isInitialized) {
+        final bool isChatIdEmpty = await View360ChatPrefs.isChatIdNullOrEmpty();
+        if (isChatIdEmpty) {
+          await View360.chat.createChatSession(chatContent: trimmed);
+        } else {
+          await View360.chat.sendChatMessage(chatContent: trimmed);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error sending chat message: $e');
+    }
   }
 
   @override

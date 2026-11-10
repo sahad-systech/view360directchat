@@ -80,6 +80,20 @@ class View360ChatPrefs {
     return prefs.getString(chatIdKey);
   }
 
+  /// Checks whether the stored chat ID is null or empty.
+  ///
+  /// Returns `true` if [chatIdKey] is not set, `null`, or consists only of whitespace.
+  static Future<bool> isChatIdNullOrEmpty() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? chatId = prefs.getString(chatIdKey);
+    return chatId == null || chatId.trim().isEmpty;
+  }
+
+  /// Checks whether the stored chat ID is empty or null.
+  ///
+  /// Alias for [isChatIdNullOrEmpty].
+  static Future<bool> isChatIdEmpty() => isChatIdNullOrEmpty();
+
   /// Removes only the customer ID key from preferences.
   static Future<bool> removeCustomerId() async {
     final prefs = await SharedPreferences.getInstance();
