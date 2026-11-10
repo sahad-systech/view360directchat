@@ -15,3 +15,12 @@ export 'src/call/config/call_strings.dart';
 export 'src/call/config/call_theme.dart';
 export 'src/call/service/livekit_call_service.dart';
 export 'src/call/ui/view360_call_page.dart';
+// Chat UI feature
+export 'src/chat/config/chat_strings.dart';
+export 'src/chat/config/chat_theme.dart';
+export 'src/chat/model/chat_ui_message.dart';
+export 'src/chat/ui/view360_chat_page.dart';
+export 'src/chat/ui/view360_chat_view.dart';
+export 'src/chat/ui/widgets/chat_header.dart';
+export 'src/chat/ui/widgets/chat_input_bar.dart';
+export 'src/chat/ui/widgets/chat_message_bubble.dart';

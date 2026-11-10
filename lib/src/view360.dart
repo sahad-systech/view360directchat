@@ -4,6 +4,10 @@ import 'api/api_service.dart';
 import 'call/config/call_strings.dart';
 import 'call/config/call_theme.dart';
 import 'call/ui/view360_call_page.dart';
+import 'chat/config/chat_strings.dart';
+import 'chat/config/chat_theme.dart';
+import 'chat/model/chat_ui_message.dart';
+import 'chat/ui/view360_chat_page.dart';
 import 'socket/socket_managet.dart';
 import 'view360_config.dart';
 import 'local/local_storage.dart';
@@ -104,6 +108,32 @@ abstract final class View360 {
           onCallEnded: onCallEnded,
           onRatingSubmitted: onRatingSubmitted,
           onError: onError,
+        ),
+      ),
+    );
+  }
+
+  /// Pushes the [View360ChatPage] onto the navigator using the configured customer and theme settings.
+  static Future<void> openChat(
+    BuildContext context, {
+    View360ChatTheme? theme,
+    View360ChatStrings? strings,
+    List<View360ChatMessage>? initialMessages,
+    bool autoConnect = true,
+    void Function(String text)? onSendMessage,
+    VoidCallback? onBackPressed,
+    VoidCallback? onClosePressed,
+  }) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => View360ChatPage(
+          theme: theme ?? const View360ChatTheme(),
+          strings: strings ?? const View360ChatStrings(),
+          initialMessages: initialMessages,
+          autoConnect: autoConnect,
+          onSendMessage: onSendMessage,
+          onBackPressed: onBackPressed,
+          onClosePressed: onClosePressed,
         ),
       ),
     );
