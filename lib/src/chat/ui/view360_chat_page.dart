@@ -1,5 +1,6 @@
+// ignore_for_file: public_member_api_docs
+
 import 'package:flutter/material.dart';
-import '../model/chat_ui_message.dart';
 import 'view360_chat_view.dart';
 
 /// Full-screen chat page widget displaying the View360 direct chat interface.
@@ -7,21 +8,15 @@ import 'view360_chat_view.dart';
 /// Wraps [View360ChatView] in a [Scaffold] with appropriate status bar and navigation
 /// handling. Can be pushed directly onto the navigator stack.
 class View360ChatPage extends StatelessWidget {
-  /// Initial messages to display in the conversation.
-  final List<View360ChatMessage>? initialMessages;
-
-  /// Callback fired when user sends a message.
-  final void Function(String text)? onSendMessage;
-
-  /// Callback fired when the back button is pressed. Defaults to `Navigator.of(context).pop()`.
-  final VoidCallback? onBackPressed;
-
   /// Creates a [View360ChatPage] widget.
+  final String userName;
+  final String userEmail;
+  final String? userNumber;
   const View360ChatPage({
     super.key,
-    this.initialMessages,
-    this.onSendMessage,
-    this.onBackPressed,
+    required this.userName,
+    required this.userEmail,
+    this.userNumber,
   });
 
   @override
@@ -31,10 +26,9 @@ class View360ChatPage extends StatelessWidget {
       body: SafeArea(
         top: false,
         child: View360ChatView(
-          initialMessages: initialMessages,
-          onSendMessage: onSendMessage,
-          onBackPressed:
-              onBackPressed ?? () => Navigator.of(context).maybePop(),
+          userEmail: userEmail,
+          userName: userName,
+          userNumber: userNumber,
         ),
       ),
     );

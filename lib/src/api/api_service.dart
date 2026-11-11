@@ -132,6 +132,9 @@ class ChatService {
     String? languageInstance,
     bool? fetchFCMToken = false,
   }) async {
+    log(
+      'customerName $customerName , customerEmail $customerEmail , customerPhone $customerPhone',
+    );
     final effectiveCustomerName =
         customerName ??
         (View360.isInitialized ? View360.config.customer?.name : null);

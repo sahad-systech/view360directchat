@@ -1,3 +1,5 @@
+// ignore_for_file: public_member_api_docs
+
 import 'package:flutter/material.dart';
 import '../../local/local_storage.dart';
 import '../../socket/socket_managet.dart';
@@ -9,26 +11,14 @@ import 'widgets/chat_message_bubble.dart';
 
 /// Embeddable chat view widget displaying the View360 direct chat conversation.
 class View360ChatView extends StatefulWidget {
-  /// Initial messages to populate the chat. If omitted,
-  /// defaults to [View360ChatMessage.defaultSampleMessages].
-  final List<View360ChatMessage>? initialMessages;
-
-  /// Whether to display the top agent header bar.
-  final bool showHeader;
-
-  /// Callback fired when the user sends a message.
-  final void Function(String text)? onSendMessage;
-
-  /// Callback fired when the back button is pressed in the header.
-  final VoidCallback? onBackPressed;
-
-  /// Creates a [View360ChatView] widget.
+  final String userName;
+  final String userEmail;
+  final String? userNumber;
   const View360ChatView({
     super.key,
-    this.initialMessages,
-    this.showHeader = true,
-    this.onSendMessage,
-    this.onBackPressed,
+    required this.userName,
+    required this.userEmail,
+    this.userNumber,
   });
 
   @override
@@ -44,7 +34,6 @@ class _View360ChatViewState extends State<View360ChatView> {
   @override
   void initState() {
     super.initState();
-    _initializeMessages();
     _fetchMessages();
     _ensureSocketConnected();
   }
@@ -98,12 +87,6 @@ class _View360ChatViewState extends State<View360ChatView> {
         }
       },
     );
-  }
-
-  void _initializeMessages() {
-    if (widget.initialMessages != null) {
-      _messages.addAll(widget.initialMessages!);
-    }
   }
 
   Future<void> _fetchMessages() async {
@@ -182,13 +165,16 @@ class _View360ChatViewState extends State<View360ChatView> {
     });
     _scrollToBottom();
 
-    widget.onSendMessage?.call(trimmed);
-
     try {
       if (View360.isInitialized) {
         final bool isChatIdEmpty = await View360ChatPrefs.isChatIdNullOrEmpty();
         if (isChatIdEmpty) {
-          await View360.chat.createChatSession(chatContent: trimmed);
+          await View360.chat.createChatSession(
+            chatContent: trimmed,
+            customerName: widget.userName,
+            customerEmail: widget.userEmail,
+            customerPhone: widget.userNumber,
+          );
         } else {
           await View360.chat.sendChatMessage(chatContent: trimmed);
         }
@@ -210,20 +196,19 @@ class _View360ChatViewState extends State<View360ChatView> {
       color: const Color(0xFFFAFAFD),
       child: Column(
         children: [
-          if (widget.showHeader)
-            ChatHeader(
-              onBackPressed: widget.onBackPressed,
-              onClosePressed: () async {
-                if (View360.isInitialized) {
-                  await View360.chat.closeChat();
-                }
-                if (mounted) {
-                  setState(() {
-                    _isChatIdNullOrEmpty = true;
-                  });
-                }
-              },
-            ),
+          ChatHeader(
+            onBackPressed: () => Navigator.pop(context),
+            onClosePressed: () async {
+              if (View360.isInitialized) {
+                await View360.chat.closeChat();
+              }
+              if (mounted) {
+                setState(() {
+                  _isChatIdNullOrEmpty = true;
+                });
+              }
+            },
+          ),
           Expanded(
             child: _isLoading
                 ? const Center(

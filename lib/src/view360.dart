@@ -4,7 +4,6 @@ import 'api/api_service.dart';
 import 'call/config/call_strings.dart';
 import 'call/config/call_theme.dart';
 import 'call/ui/view360_call_page.dart';
-import 'chat/model/chat_ui_message.dart';
 import 'chat/ui/view360_chat_page.dart';
 import 'socket/socket_managet.dart';
 import 'view360_config.dart';
@@ -112,18 +111,13 @@ abstract final class View360 {
   }
 
   /// Pushes the [View360ChatPage] onto the navigator.
-  static Future<void> openChat(
-    BuildContext context, {
-    List<View360ChatMessage>? initialMessages,
-    void Function(String text)? onSendMessage,
-    VoidCallback? onBackPressed,
-  }) async {
+  static Future<void> openChat(BuildContext context) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => View360ChatPage(
-          initialMessages: initialMessages,
-          onSendMessage: onSendMessage,
-          onBackPressed: onBackPressed,
+          userEmail: 'test@gmai.com',
+          userName: 'Sahad',
+          userNumber: '000000000',
         ),
       ),
     );
