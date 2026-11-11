@@ -16,16 +16,12 @@ class View360ChatPage extends StatelessWidget {
   /// Callback fired when the back button is pressed. Defaults to `Navigator.of(context).pop()`.
   final VoidCallback? onBackPressed;
 
-  /// Callback fired when the close/exit button is pressed.
-  final VoidCallback? onClosePressed;
-
   /// Creates a [View360ChatPage] widget.
   const View360ChatPage({
     super.key,
     this.initialMessages,
     this.onSendMessage,
     this.onBackPressed,
-    this.onClosePressed,
   });
 
   @override
@@ -39,8 +35,6 @@ class View360ChatPage extends StatelessWidget {
           onSendMessage: onSendMessage,
           onBackPressed:
               onBackPressed ?? () => Navigator.of(context).maybePop(),
-          onClosePressed:
-              onClosePressed ?? () => Navigator.of(context).maybePop(),
         ),
       ),
     );

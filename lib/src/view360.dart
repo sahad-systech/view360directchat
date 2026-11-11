@@ -117,7 +117,6 @@ abstract final class View360 {
     List<View360ChatMessage>? initialMessages,
     void Function(String text)? onSendMessage,
     VoidCallback? onBackPressed,
-    VoidCallback? onClosePressed,
   }) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
@@ -125,7 +124,6 @@ abstract final class View360 {
           initialMessages: initialMessages,
           onSendMessage: onSendMessage,
           onBackPressed: onBackPressed,
-          onClosePressed: onClosePressed,
         ),
       ),
     );

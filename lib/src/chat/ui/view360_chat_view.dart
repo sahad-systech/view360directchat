@@ -22,9 +22,6 @@ class View360ChatView extends StatefulWidget {
   /// Callback fired when the back button is pressed in the header.
   final VoidCallback? onBackPressed;
 
-  /// Callback fired when the close/exit button is pressed in the header.
-  final VoidCallback? onClosePressed;
-
   /// Creates a [View360ChatView] widget.
   const View360ChatView({
     super.key,
@@ -32,7 +29,6 @@ class View360ChatView extends StatefulWidget {
     this.showHeader = true,
     this.onSendMessage,
     this.onBackPressed,
-    this.onClosePressed,
   });
 
   @override
@@ -72,18 +68,34 @@ class _View360ChatViewState extends State<View360ChatView> {
               _scrollToBottom();
             }
           },
-      onAgentJoin: ({required String name}) {
-        if (mounted) {
-          _fetchMessages();
-        }
+      onAgentJoin: ({required String name}) async {
+        await View360ChatPrefs.setAgentName(name);
       },
-      onAgentClose: () {
+      onAgentClose: () async {
+        if (View360.isInitialized) {
+          await View360.chat.closeChat();
+        }
         if (mounted) {
-          setState(() {});
+          setState(() {
+            _isChatIdNullOrEmpty = true;
+          });
         }
       },
       onConnected: () {
         debugPrint('View360ChatView: Socket connection established.');
+      },
+      onChatTransfer: ({required String name}) async {
+        await View360ChatPrefs.setAgentName(name);
+      },
+      onRemovedByInActivity: ({required dynamic reason}) async {
+        if (View360.isInitialized) {
+          await View360.chat.closeChat();
+        }
+        if (mounted) {
+          setState(() {
+            _isChatIdNullOrEmpty = true;
+          });
+        }
       },
     );
   }
@@ -201,7 +213,16 @@ class _View360ChatViewState extends State<View360ChatView> {
           if (widget.showHeader)
             ChatHeader(
               onBackPressed: widget.onBackPressed,
-              onClosePressed: widget.onClosePressed,
+              onClosePressed: () async {
+                if (View360.isInitialized) {
+                  await View360.chat.closeChat();
+                }
+                if (mounted) {
+                  setState(() {
+                    _isChatIdNullOrEmpty = true;
+                  });
+                }
+              },
             ),
           Expanded(
             child: _isLoading

@@ -24,6 +24,9 @@ class View360ChatPrefs {
   /// Preference key for queue status.
   static String isInQueue = 'IS_IN_QUEUE';
 
+  /// Preference key for stored agent name.
+  static String agentNameKey = 'AGENT_NAME_KEY';
+
   /// Saves session and customer details to local preferences.
   static Future<void> saveString({
     required String customerIdKeyValue,
@@ -31,6 +34,7 @@ class View360ChatPrefs {
     String? customerEmailKeyValue,
     String? customerPhoneKeyValue,
     required bool isInQueueValue,
+    String? agentNameValue,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(isInQueue, isInQueueValue);
@@ -41,6 +45,9 @@ class View360ChatPrefs {
     }
     if (customerPhoneKeyValue != null) {
       await prefs.setString(customerPhoneKey, customerPhoneKeyValue);
+    }
+    if (agentNameValue != null) {
+      await prefs.setString(agentNameKey, agentNameValue);
     }
   }
 
@@ -54,6 +61,7 @@ class View360ChatPrefs {
       isInQueue: prefs.getBool(isInQueue) ?? false,
       customerEmail: prefs.getString(customerEmailKey) ?? '',
       customerPhone: prefs.getString(customerPhoneKey) ?? '',
+      agentName: prefs.getString(agentNameKey),
     );
   }
 
@@ -66,6 +74,7 @@ class View360ChatPrefs {
     await prefs.remove(customerEmailKey);
     await prefs.remove(customerPhoneKey);
     await prefs.remove(isInQueue);
+    await prefs.remove(agentNameKey);
   }
 
   /// Retrieves the saved customer ID, or `null` if none is saved.
@@ -110,6 +119,24 @@ class View360ChatPrefs {
   static Future<void> setChatId(String value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(chatIdKey, value);
+  }
+
+  /// Sets the active agent name in preferences.
+  static Future<void> setAgentName(String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(agentNameKey, value);
+  }
+
+  /// Retrieves the saved agent name, or `null` if none is saved.
+  static Future<String?> getAgentName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(agentNameKey);
+  }
+
+  /// Removes only the agent name key from preferences.
+  static Future<bool> removeAgentName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.remove(agentNameKey);
   }
 
   /// Clears all preferences completely.

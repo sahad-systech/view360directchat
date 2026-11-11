@@ -18,6 +18,9 @@ class View360ChatPrefsModel {
   /// Whether the customer is currently in a waiting queue.
   final bool isInQueue;
 
+  /// The assigned agent's name.
+  final String? agentName;
+
   /// Creates a [View360ChatPrefsModel] instance.
   View360ChatPrefsModel({
     required this.isInQueue,
@@ -26,5 +29,6 @@ class View360ChatPrefsModel {
     required this.customerName,
     this.customerEmail,
     this.customerPhone,
+    this.agentName,
   });
 }
