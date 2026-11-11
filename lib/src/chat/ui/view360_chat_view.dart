@@ -14,11 +14,13 @@ class View360ChatView extends StatefulWidget {
   final String userName;
   final String userEmail;
   final String? userNumber;
+  final ValueNotifier<String>? agentNameNotifier;
   const View360ChatView({
     super.key,
     required this.userName,
     required this.userEmail,
     this.userNumber,
+    this.agentNameNotifier,
   });
 
   @override
@@ -28,14 +30,32 @@ class View360ChatView extends StatefulWidget {
 class _View360ChatViewState extends State<View360ChatView> {
   final List<View360ChatMessage> _messages = [];
   final ScrollController _scrollController = ScrollController();
+  late final ValueNotifier<String> _agentNameNotifier;
+  bool _createdInternalNotifier = false;
   bool _isLoading = true;
   bool _isChatIdNullOrEmpty = true;
+
+  ValueNotifier<String> get agentNameNotifier => _agentNameNotifier;
 
   @override
   void initState() {
     super.initState();
+    if (widget.agentNameNotifier != null) {
+      _agentNameNotifier = widget.agentNameNotifier!;
+    } else {
+      _agentNameNotifier = ValueNotifier<String>('Agent');
+      _createdInternalNotifier = true;
+    }
+    _loadAgentName();
     _fetchMessages();
     _ensureSocketConnected();
+  }
+
+  Future<void> _loadAgentName() async {
+    final savedName = await View360ChatPrefs.getAgentName();
+    if (savedName != null && savedName.trim().isNotEmpty && mounted) {
+      _agentNameNotifier.value = savedName;
+    }
   }
 
   void _ensureSocketConnected() {
@@ -59,13 +79,27 @@ class _View360ChatViewState extends State<View360ChatView> {
           },
       onAgentJoin: ({required String name}) async {
         await View360ChatPrefs.setAgentName(name);
+        if (name.isNotEmpty) {
+          _agentNameNotifier.value = name;
+        }
+        if (mounted) {
+          setState(() {
+            _messages.add(
+              View360ChatMessage.system(content: '$name Joined the Chat'),
+            );
+          });
+        }
       },
       onAgentClose: () async {
         if (View360.isInitialized) {
           await View360.chat.closeChat();
         }
+        _agentNameNotifier.value = 'Agent';
         if (mounted) {
           setState(() {
+            _messages.add(
+              View360ChatMessage.system(content: 'Chat Closed by Agent'),
+            );
             _isChatIdNullOrEmpty = true;
           });
         }
@@ -75,11 +109,22 @@ class _View360ChatViewState extends State<View360ChatView> {
       },
       onChatTransfer: ({required String name}) async {
         await View360ChatPrefs.setAgentName(name);
+        if (name.isNotEmpty) {
+          _agentNameNotifier.value = name;
+        }
+        if (mounted) {
+          setState(() {
+            _messages.add(
+              View360ChatMessage.system(content: 'Chat transferred to $name'),
+            );
+          });
+        }
       },
       onRemovedByInActivity: ({required dynamic reason}) async {
         if (View360.isInitialized) {
           await View360.chat.closeChat();
         }
+        _agentNameNotifier.value = 'Agent';
         if (mounted) {
           setState(() {
             _isChatIdNullOrEmpty = true;
@@ -187,6 +232,9 @@ class _View360ChatViewState extends State<View360ChatView> {
   @override
   void dispose() {
     _scrollController.dispose();
+    if (_createdInternalNotifier) {
+      _agentNameNotifier.dispose();
+    }
     super.dispose();
   }
 
@@ -197,13 +245,18 @@ class _View360ChatViewState extends State<View360ChatView> {
       child: Column(
         children: [
           ChatHeader(
+            agentNameNotifier: _agentNameNotifier,
             onBackPressed: () => Navigator.pop(context),
             onClosePressed: () async {
               if (View360.isInitialized) {
                 await View360.chat.closeChat();
               }
+              _agentNameNotifier.value = 'Agent';
               if (mounted) {
                 setState(() {
+                  _messages.add(
+                    View360ChatMessage.system(content: 'Chat Closed'),
+                  );
                   _isChatIdNullOrEmpty = true;
                 });
               }

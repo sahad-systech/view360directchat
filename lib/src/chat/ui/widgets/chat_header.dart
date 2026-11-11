@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../local/local_storage.dart';
@@ -5,6 +6,9 @@ import '../../../local/local_storage.dart';
 /// Top header bar for the View360 chat screen showing agent avatar, online status,
 /// title, subtitle, and navigation actions.
 class ChatHeader extends StatelessWidget {
+  /// Optional [ValueListenable] for reactive agent name updates.
+  final ValueListenable<String>? agentNameNotifier;
+
   /// Callback fired when the back button is tapped.
   final VoidCallback? onBackPressed;
 
@@ -12,7 +16,12 @@ class ChatHeader extends StatelessWidget {
   final VoidCallback? onClosePressed;
 
   /// Creates a [ChatHeader] widget.
-  const ChatHeader({super.key, this.onBackPressed, this.onClosePressed});
+  const ChatHeader({
+    super.key,
+    this.agentNameNotifier,
+    this.onBackPressed,
+    this.onClosePressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -56,23 +65,45 @@ class ChatHeader extends StatelessWidget {
                   ),
                 const SizedBox(width: 8),
                 // Avatar with online status badge
-                const Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Color(0xFF3F4E65),
-                      child: Text(
-                        'A',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                if (agentNameNotifier != null)
+                  ValueListenableBuilder<String>(
+                    valueListenable: agentNameNotifier!,
+                    builder: (context, name, _) {
+                      final initial = name.trim().isNotEmpty
+                          ? name.trim()[0].toUpperCase()
+                          : 'A';
+                      return CircleAvatar(
+                        radius: 22,
+                        backgroundColor: const Color(0xFF3F4E65),
+                        child: Text(
+                          initial,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                else
+                  const Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: Color(0xFF3F4E65),
+                        child: Text(
+                          'A',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
                 const SizedBox(width: 12),
                 // Agent title and subtitle
                 Expanded(
@@ -81,15 +112,34 @@ class ChatHeader extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (!isChatIdNullOrEmpty) ...[
-                        const Text(
-                          'Agent',
-                          style: TextStyle(
-                            color: Color(0xFF111827),
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -0.2,
+                        if (agentNameNotifier != null)
+                          ValueListenableBuilder<String>(
+                            valueListenable: agentNameNotifier!,
+                            builder: (context, name, _) {
+                              final displayName = name.trim().isNotEmpty
+                                  ? name
+                                  : 'Agent';
+                              return Text(
+                                displayName,
+                                style: const TextStyle(
+                                  color: Color(0xFF111827),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: -0.2,
+                                ),
+                              );
+                            },
+                          )
+                        else
+                          const Text(
+                            'Agent',
+                            style: TextStyle(
+                              color: Color(0xFF111827),
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: -0.2,
+                            ),
                           ),
-                        ),
                         const SizedBox(height: 2),
                       ],
                       const Text(

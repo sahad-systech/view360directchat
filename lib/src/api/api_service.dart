@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -132,9 +131,6 @@ class ChatService {
     String? languageInstance,
     bool? fetchFCMToken = false,
   }) async {
-    log(
-      'customerName $customerName , customerEmail $customerEmail , customerPhone $customerPhone',
-    );
     final effectiveCustomerName =
         customerName ??
         (View360.isInitialized ? View360.config.customer?.name : null);
@@ -397,7 +393,6 @@ class ChatService {
                 .timeout(const Duration(seconds: 20)); // Optional: set timeout
       if (response.statusCode == 200) {
         final dynamic data = jsonDecode(response.body);
-        log("response from queue message:${response.body.toString()}");
         if (data is List) {
           return ChatListResponse.fromJson2(data);
         } else if (data is Map && data['messagesInChat'] is List) {

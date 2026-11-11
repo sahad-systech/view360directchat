@@ -12,11 +12,13 @@ class View360ChatPage extends StatelessWidget {
   final String userName;
   final String userEmail;
   final String? userNumber;
+  final ValueNotifier<String>? agentNameNotifier;
   const View360ChatPage({
     super.key,
     required this.userName,
     required this.userEmail,
     this.userNumber,
+    this.agentNameNotifier,
   });
 
   @override
@@ -29,6 +31,7 @@ class View360ChatPage extends StatelessWidget {
           userEmail: userEmail,
           userName: userName,
           userNumber: userNumber,
+          agentNameNotifier: agentNameNotifier,
         ),
       ),
     );
