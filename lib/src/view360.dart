@@ -111,13 +111,18 @@ abstract final class View360 {
   }
 
   /// Pushes the [View360ChatPage] onto the navigator.
-  static Future<void> openChat(BuildContext context) async {
+  static Future<void> openChat({
+    required BuildContext context,
+    required String userName,
+    required String userEmail,
+    String? userNumber,
+  }) async {
     await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => View360ChatPage(
-          userEmail: 'test@gmai.com',
-          userName: 'Sahad',
-          userNumber: '000000000',
+          userEmail: userEmail,
+          userName: userName,
+          userNumber: userNumber,
         ),
       ),
     );

@@ -1,23 +1,28 @@
+## 2.2.0
+
+- added direct chat feature.
+
 ## 2.1.0
+
 - Added `View360.init` single entry point and global configuration. Fully backward compatible.
 
 ## 2.0.1
 
-* update api response.
+- update api response.
 
 ## 1.0.3
 
-* pass static analysis.
-* adding docs.
+- pass static analysis.
+- adding docs.
 
 ## 1.0.2
 
-* Updated the channel name.
+- Updated the channel name.
 
 ## 1.0.1
 
-* update readme.md
+- update readme.md
 
 ## 1.0.0
 
-* Implimented the view360 chat feature.
+- Implimented the view360 chat feature.
